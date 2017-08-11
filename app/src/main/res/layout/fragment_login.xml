@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    tools:context="com.scriptgo.www.admingraviflex.fragments.LoginFragment">
+
+
+    <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="0dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
+
+
+        <android.support.v7.widget.CardView
+            android:background="@drawable/back_form"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="150px"
+            android:layout_marginLeft="60px"
+            android:layout_marginRight="60px"
+            android:visibility="visible">
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <EditText
+                    android:id="@+id/edt_usuario"
+                    android:layout_width="match_parent"
+                    android:layout_height="100px"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:ems="10"
+                    android:hint="Usuario"
+                    android:paddingLeft="15px"
+                    android:paddingRight="15px"
+                    android:inputType="textPersonName"
+                    android:maxLines="1"
+                    android:text="" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2px"
+                    android:background="@color/grey_300" />
+
+                <EditText
+                    android:id="@+id/edt_clave"
+                    android:layout_width="match_parent"
+                    android:layout_height="100px"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:ems="10"
+                    android:paddingLeft="15px"
+                    android:paddingRight="15px"
+                    android:hint="Clave"
+                    android:inputType="textPassword"
+                    android:maxLines="1"
+                    android:text="" />
+            </LinearLayout>
+        </android.support.v7.widget.CardView>
+
+    </RelativeLayout>
+</android.support.constraint.ConstraintLayout>

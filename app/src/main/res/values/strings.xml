@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">AdminGraviFlex</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="login">Login</string>
+    <string name="obras">Obras</string>
+    <string name="egresos">Egresos</string>
+    <string name="ingresos">Ingresos</string>
+    <string name="valoraciones">Valoraciones</string>
+    <string name="entrar">Entrar</string>
+    <string name="usuario">Usuario</string>
+    <string name="clave">Clave</string>
+    <string name="ingresenombre">Ingrese Nombre de la Obra</string>
+    <string name="title_activity_login">LoginActivity</string>
+</resources>

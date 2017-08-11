@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_obras"
+            android:icon="@drawable/ic_build_black_24dp"
+            android:title="Obras" />
+        <item
+            android:id="@+id/nav_egresos"
+            android:icon="@drawable/ic_money_off_black_24dp"
+            android:title="Egresos" />
+        <item
+            android:id="@+id/nav_ingresos"
+            android:icon="@drawable/ic_attach_money_black_24dp"
+            android:title="Ingresos" />
+        <item
+            android:id="@+id/nav_valoraciones"
+            android:icon="@drawable/ic_assignment_black_24dp"
+            android:title="Valoraciones" />
+    </group>
+
+    <item android:title="Communicate">
+        <menu>
+            <item
+                android:id="@+id/nav_salir"
+                android:icon="@drawable/ic_power_settings_new_black_24dp"
+                android:title="Cerrar Sesion" />
+        </menu>
+    </item>
+
+</menu>
