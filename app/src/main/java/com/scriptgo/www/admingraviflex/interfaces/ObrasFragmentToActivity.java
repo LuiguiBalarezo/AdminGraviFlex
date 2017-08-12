@@ -5,5 +5,5 @@ package com.scriptgo.www.admingraviflex.interfaces;
  */
 
 public interface ObrasFragmentToActivity {
-    void onClickObra();
+    void shoSnackBar(String msg);
 }

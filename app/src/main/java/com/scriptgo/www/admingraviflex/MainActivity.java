@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
@@ -37,7 +38,7 @@ public class MainActivity extends AppCompatActivity
     FloatingActionButton fab;
     DrawerLayout drawer;
     NavigationView navigationView;
-
+    View view;
     // TRANSACTION
     FragmentManager fragmentManager;
 
@@ -52,6 +53,7 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
+        view = fab;
 //        fab.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
@@ -191,7 +193,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onClickObra() {
-        Toast.makeText(this, "CLICK DESDE OBRAFRAGMENT MOSTRADO EN ACTIVITY", Toast.LENGTH_SHORT).show();
+    public void shoSnackBar(String msg) {
+        Snackbar.make(view, msg, Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
     }
 }
