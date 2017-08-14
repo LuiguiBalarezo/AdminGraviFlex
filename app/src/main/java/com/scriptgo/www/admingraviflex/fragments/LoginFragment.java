@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.scriptgo.www.admingraviflex.MainActivity;
@@ -109,8 +108,7 @@ public class LoginFragment extends Fragment {
                         saveInDataBase(usuario);
                     }
                 } else {
-                    Toast.makeText(getActivity(), "ERROR EN FORMATO DE RESPUESTA", Toast.LENGTH_SHORT).show();
-                    loginActivityFragment.finishValidateUser("Error al Formatear Resulados");
+                    loginActivityFragment.finishValidateUser("Error al Formatear Resulados del Login");
                     openDialog();
                     realm.close();
                 }
@@ -118,7 +116,7 @@ public class LoginFragment extends Fragment {
 
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
-                Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
+                loginActivityFragment.finishValidateUser("No se pudo conectar con el API");
                 openDialog();
             }
         });

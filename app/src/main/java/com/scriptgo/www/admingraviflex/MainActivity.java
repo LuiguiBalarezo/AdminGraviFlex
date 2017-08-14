@@ -26,7 +26,6 @@ import com.scriptgo.www.admingraviflex.interfaces.ObrasFragmentToActivity;
 
 public class MainActivity extends AppCompatActivity
         implements
-        ObrasFragment.OnFragmentInteractionListener,
         EgresosFragment.OnFragmentInteractionListener,
         IngresosFragment.OnFragmentInteractionListener,
         ObrasFragmentToActivity,
@@ -38,6 +37,7 @@ public class MainActivity extends AppCompatActivity
     FloatingActionButton fab;
     DrawerLayout drawer;
     NavigationView navigationView;
+    Snackbar snackbar =  null;
     View view;
     // TRANSACTION
     FragmentManager fragmentManager;
@@ -54,13 +54,6 @@ public class MainActivity extends AppCompatActivity
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
         view = fab;
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         toggle = new ActionBarDrawerToggle(
@@ -193,8 +186,21 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void shoSnackBar(String msg) {
-        Snackbar.make(view, msg, Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+    public void showSnackBar(String msg) {
+        snackbar = Snackbar.make(view, msg, Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction("dismiss", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                snackbar.dismiss();
+            }
+        });
+        snackbar.setAction("Action", null).show();
+    }
+
+    @Override
+    public void dismissSnackBar() {
+        if(snackbar != null){
+            snackbar.dismiss();
+        }
     }
 }
