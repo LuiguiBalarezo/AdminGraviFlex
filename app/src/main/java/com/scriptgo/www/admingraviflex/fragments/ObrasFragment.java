@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -235,7 +236,7 @@ public class ObrasFragment extends Fragment {
     private void setAddAdapter(RealmResults<Obra> obras) {
         obrasList = new RealmList<Obra>();
         obrasList.addAll(obras.subList(0, obras.size()));
-        obraAdapter = new ObraAdapter(obrasList);
+        obraAdapter = new ObraAdapter(getActivity(), obrasList);
         recycler_obras.setAdapter(obraAdapter);
         obraAdapter.notifyDataSetChanged();
     }
@@ -250,7 +251,7 @@ public class ObrasFragment extends Fragment {
                 if (response.isSuccessful()) {
                     ObrasResponse obraResponse = response.body();
                     if (obraResponse.error) {
-                        //Toast.makeText(getActivity(), "ERROR", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "ERROR", Toast.LENGTH_SHORT).show();
                     } else {
                         final RealmList<Obra> obras = obraResponse.obra;
                         saveIntDataBase(obras);
@@ -265,12 +266,13 @@ public class ObrasFragment extends Fragment {
 
                 interfaceObras.showSnackBar("Sin Conexion con el A.P.I / Guardado en Local");
 
-
                 final Obra obra = new Obra();
+                obra.idlocal = getMaxIdObra();
                 obra.nombre = nombreobra;
                 obra.createdAt = null;
                 obra.updatedAt = null;
                 obra.createdAtLocalDB = getDateTime();
+
                 realm.executeTransactionAsync(new Realm.Transaction() {
                     @Override
                     public void execute(Realm realm) {
@@ -285,12 +287,22 @@ public class ObrasFragment extends Fragment {
                     @Override
                     public void onError(Throwable error) {
                         Toast.makeText(getActivity(), "processAddObra onError", Toast.LENGTH_SHORT).show();
-//                        realm.close();
                     }
                 });
 
             }
         });
+    }
+
+    private int getMaxIdObra(){
+        Number currentIdNum = realm.where(Obra.class).max("idlocal");
+        int nextId;
+        if(currentIdNum == null) {
+            nextId = 1;
+        } else {
+            nextId = currentIdNum.intValue() + 1;
+        }
+        return nextId;
     }
 
     private Date getDateTime() {
@@ -299,8 +311,19 @@ public class ObrasFragment extends Fragment {
     }
 
     private void saveIntDataBase(final RealmList<Obra> obrasapi) {
-//        realm = Realm.getDefaultInstance();
         final RealmResults<Obra> obras = realm.where(Obra.class).findAll();
+
+        int nextId = getMaxIdObra();
+
+        for(int i = 0 ; i < obrasapi.size() ; i++){
+            if(obrasapi.get(i).sync == 0){
+                obrasapi.get(i).idlocal = nextId;
+                nextId++;
+            }
+        }
+
+        Log.d("OBRAS API " , "TERMINO");
+
         realmAsyncTask = realm.executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
@@ -310,13 +333,12 @@ public class ObrasFragment extends Fragment {
             @Override
             public void onSuccess() {
                 Toast.makeText(getActivity(), "saveIntDataBase onSuccess", Toast.LENGTH_SHORT).show();
-//                realm.close();
+                checkObras();
             }
         }, new Realm.Transaction.OnError() {
             @Override
             public void onError(Throwable error) {
                 Toast.makeText(getActivity(), "saveIntDataBase onError", Toast.LENGTH_SHORT).show();
-//                realm.close();
             }
         });
 

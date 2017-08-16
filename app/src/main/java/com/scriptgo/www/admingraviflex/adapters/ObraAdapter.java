@@ -1,9 +1,11 @@
 package com.scriptgo.www.admingraviflex.adapters;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.scriptgo.www.admingraviflex.R;
@@ -18,8 +20,9 @@ import io.realm.RealmList;
 public class ObraAdapter extends  RecyclerView.Adapter<ObraAdapter.ObraViewHolder>{
 
     private RealmList<Obra> obras;
-
-    public ObraAdapter(RealmList<Obra> obras) {
+    private Context context;
+    public ObraAdapter(Context ctx, RealmList<Obra> obras) {
+        context = ctx;
         this.obras = obras;
     }
 
@@ -32,7 +35,13 @@ public class ObraAdapter extends  RecyclerView.Adapter<ObraAdapter.ObraViewHolde
     @Override
     public void onBindViewHolder(ObraViewHolder holder, int position) {
         Obra obra = obras.get(position);
-        holder.txtNombreObra.setText(obra.nombre);
+        holder.txt_nombre.setText(obra.nombre);
+
+        if(obra.sync == null){
+            holder.img_iconsync.setImageResource(R.drawable.ic_access_time_black_24dp);
+        }else{
+            holder.img_iconsync.setImageResource(R.drawable.ic_cloud_done_black_24dp);
+        }
     }
 
     @Override
@@ -41,11 +50,12 @@ public class ObraAdapter extends  RecyclerView.Adapter<ObraAdapter.ObraViewHolde
     }
 
     public class ObraViewHolder extends RecyclerView.ViewHolder{
-        private TextView txtNombreObra;
-
+        private TextView txt_nombre;
+        private ImageView img_iconsync;
         public ObraViewHolder(View itemView) {
             super(itemView);
-            txtNombreObra = (TextView)itemView.findViewById(R.id.txt_nombre_obra);
+            txt_nombre = (TextView)itemView.findViewById(R.id.txt_nombre_obra);
+            img_iconsync = (ImageView)itemView.findViewById(R.id.img_iconsync);
         }
     }
 
