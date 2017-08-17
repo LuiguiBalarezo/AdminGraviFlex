@@ -10,7 +10,6 @@ import io.realm.annotations.PrimaryKey;
 public class Usuario extends RealmObject {
     @PrimaryKey
     public String id;
-
     public String nombre;
     public String apellidopaterno;
     public String apellidomaterno;

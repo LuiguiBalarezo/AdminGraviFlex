@@ -20,6 +20,7 @@ public class Obra extends RealmObject {
     public Date createdAtLocalDB;
     public Date updatedAtLocalDB;
     public Integer sync;
+    public String iduser;
     public Obra() {
     }
 }

@@ -19,8 +19,10 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.scriptgo.www.admingraviflex.R;
 import com.scriptgo.www.admingraviflex.adapters.ObraAdapter;
 import com.scriptgo.www.admingraviflex.apiadapter.ApiAdapter;
+import com.scriptgo.www.admingraviflex.interfaces.ObrasClickRecyclerView;
 import com.scriptgo.www.admingraviflex.interfaces.ObrasFragmentToActivity;
 import com.scriptgo.www.admingraviflex.models.Obra;
+import com.scriptgo.www.admingraviflex.models.Usuario;
 import com.scriptgo.www.admingraviflex.responses.ObrasResponse;
 
 import java.text.SimpleDateFormat;
@@ -52,7 +54,7 @@ public class ObrasFragment extends Fragment {
     // VARS
     boolean listobrasAPIempty = false;
     boolean listobrasDBempty = false;
-
+    private String iduser = "";
     // UI
     View view = null;
     //TextView txt_prueba = null;
@@ -100,7 +102,7 @@ public class ObrasFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
-       realm = Realm.getDefaultInstance();
+        realm = Realm.getDefaultInstance();
 
     }
 
@@ -111,6 +113,8 @@ public class ObrasFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_obras, container, false);
         recycler_obras = (RecyclerView) view.findViewById(R.id.recyclerview_obras);
         txt_vacio = (TextView) view.findViewById(R.id.txt_vacio);
+
+
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -233,10 +237,15 @@ public class ObrasFragment extends Fragment {
         txt_vacio.setVisibility(View.VISIBLE);
     }
 
-    private void setAddAdapter(RealmResults<Obra> obras) {
+    private void setAddAdapter(final RealmResults<Obra> obras) {
         obrasList = new RealmList<Obra>();
         obrasList.addAll(obras.subList(0, obras.size()));
-        obraAdapter = new ObraAdapter(getActivity(), obrasList);
+        obraAdapter = new ObraAdapter(getActivity(), obrasList, new ObrasClickRecyclerView() {
+            @Override
+            public void onClickSync(View view, int position) {
+                Toast.makeText(getActivity(), "hola " + obrasList.get(position).nombre    , Toast.LENGTH_SHORT).show();
+            }
+        });
         recycler_obras.setAdapter(obraAdapter);
         obraAdapter.notifyDataSetChanged();
     }
@@ -244,6 +253,8 @@ public class ObrasFragment extends Fragment {
     private void processAddObra(final String nombreobra) {
         dismissDialog();
         openDialog("Enviando Obra al A.P.I");
+        Usuario usuario = realm.where(Usuario.class).findFirst();
+        iduser = usuario.id;
         Call<ObrasResponse> obra = ApiAdapter.getApiService().processAddObra(nombreobra);
         obra.enqueue(new Callback<ObrasResponse>() {
             @Override
@@ -272,6 +283,7 @@ public class ObrasFragment extends Fragment {
                 obra.createdAt = null;
                 obra.updatedAt = null;
                 obra.createdAtLocalDB = getDateTime();
+                obra.iduser = iduser;
 
                 realm.executeTransactionAsync(new Realm.Transaction() {
                     @Override
@@ -294,10 +306,10 @@ public class ObrasFragment extends Fragment {
         });
     }
 
-    private int getMaxIdObra(){
+    private int getMaxIdObra() {
         Number currentIdNum = realm.where(Obra.class).max("idlocal");
         int nextId;
-        if(currentIdNum == null) {
+        if (currentIdNum == null) {
             nextId = 1;
         } else {
             nextId = currentIdNum.intValue() + 1;
@@ -315,14 +327,14 @@ public class ObrasFragment extends Fragment {
 
         int nextId = getMaxIdObra();
 
-        for(int i = 0 ; i < obrasapi.size() ; i++){
-            if(obrasapi.get(i).sync == 0){
+        for (int i = 0; i < obrasapi.size(); i++) {
+            if (obrasapi.get(i).sync == 0) {
                 obrasapi.get(i).idlocal = nextId;
                 nextId++;
             }
         }
 
-        Log.d("OBRAS API " , "TERMINO");
+        Log.d("OBRAS API ", "TERMINO");
 
         realmAsyncTask = realm.executeTransactionAsync(new Realm.Transaction() {
             @Override

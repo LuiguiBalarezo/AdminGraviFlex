@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.scriptgo.www.admingraviflex.R;
+import com.scriptgo.www.admingraviflex.interfaces.ObrasClickRecyclerView;
 import com.scriptgo.www.admingraviflex.models.Obra;
 
 import io.realm.RealmList;
@@ -19,29 +20,38 @@ import io.realm.RealmList;
 
 public class ObraAdapter extends  RecyclerView.Adapter<ObraAdapter.ObraViewHolder>{
 
+
+
+
     private RealmList<Obra> obras;
     private Context context;
-    public ObraAdapter(Context ctx, RealmList<Obra> obras) {
+
+    ObrasClickRecyclerView listener;
+
+    public ObraAdapter(Context ctx, RealmList<Obra> obras , ObrasClickRecyclerView listener) {
         context = ctx;
         this.obras = obras;
+        this.listener = listener;
     }
 
     @Override
     public ObraViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.obras_item_recycler, parent, false);
-        return new ObraViewHolder(v);
+
+        final  ObraViewHolder  obraViewHolder = new ObraViewHolder(v);
+        obraViewHolder.img_iconsync.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onClickSync(v,  obraViewHolder.getAdapterPosition());
+            }
+        });
+        return obraViewHolder;
     }
 
     @Override
     public void onBindViewHolder(ObraViewHolder holder, int position) {
         Obra obra = obras.get(position);
-        holder.txt_nombre.setText(obra.nombre);
-
-        if(obra.sync == null){
-            holder.img_iconsync.setImageResource(R.drawable.ic_access_time_black_24dp);
-        }else{
-            holder.img_iconsync.setImageResource(R.drawable.ic_cloud_done_black_24dp);
-        }
+        holder.txt_nombre.setText(obra.nombre + ' ' + obra.iduser );
     }
 
     @Override
@@ -50,13 +60,16 @@ public class ObraAdapter extends  RecyclerView.Adapter<ObraAdapter.ObraViewHolde
     }
 
     public class ObraViewHolder extends RecyclerView.ViewHolder{
+
         private TextView txt_nombre;
         private ImageView img_iconsync;
+
         public ObraViewHolder(View itemView) {
             super(itemView);
             txt_nombre = (TextView)itemView.findViewById(R.id.txt_nombre_obra);
             img_iconsync = (ImageView)itemView.findViewById(R.id.img_iconsync);
         }
+
     }
 
 }

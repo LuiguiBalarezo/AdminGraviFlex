@@ -112,6 +112,7 @@ public class LoginFragment extends Fragment {
                     openDialog();
                     realm.close();
                 }
+
             }
 
             @Override
