@@ -48,6 +48,7 @@ public class ObraAdapter extends  RecyclerView.Adapter<ObraAdapter.ObraViewHolde
         return obraViewHolder;
     }
 
+
     @Override
     public void onBindViewHolder(ObraViewHolder holder, int position) {
         Obra obra = obras.get(position);
