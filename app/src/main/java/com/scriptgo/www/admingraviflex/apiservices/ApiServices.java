@@ -4,6 +4,8 @@ import com.scriptgo.www.admingraviflex.constans.ConstansHelps;
 import com.scriptgo.www.admingraviflex.responses.LoginResponse;
 import com.scriptgo.www.admingraviflex.responses.ObrasResponse;
 
+import java.util.Date;
+
 import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
@@ -50,6 +52,14 @@ public interface ApiServices {
     @FormUrlEncoded
     @POST("work/add")
     @Headers(ConstansHelps.ACCESS_TOKEN)
-    Call<ObrasResponse> processAddObra(@Field("edt_nombre_obra") String namework);
+    Call<ObrasResponse> processAddObra(@Field("edt_nombre") String namework);
+
+    @FormUrlEncoded
+    @POST("work/sync")
+    @Headers(ConstansHelps.ACCESS_TOKEN)
+    Call<ObrasResponse> processSyncObra(@Field("edt_id") String id,
+                                        @Field("edt_nombre") String namework,
+                                        @Field("createdAtLocalDB") Date datecreatelocal,
+                                        @Field("iduser") String iduser);
 
 }

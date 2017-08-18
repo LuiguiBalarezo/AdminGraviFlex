@@ -58,7 +58,7 @@ public class ObrasFragment extends Fragment {
     // UI
     View view = null;
     //TextView txt_prueba = null;
-    MaterialDialog materialDialogAddOrEdit = null, materialDialog = null;
+    MaterialDialog materialDialogAddOrEdit = null, materialDialog = null, materialDialogIndeterminate = null;
     EditText edt_nombre_obra;
     RecyclerView recycler_obras;
     TextView txt_vacio;
@@ -243,7 +243,13 @@ public class ObrasFragment extends Fragment {
         obraAdapter = new ObraAdapter(getActivity(), obrasList, new ObrasClickRecyclerView() {
             @Override
             public void onClickSync(View view, int position) {
-                Toast.makeText(getActivity(), "hola " + obrasList.get(position).nombre    , Toast.LENGTH_SHORT).show();
+
+                String id = obras.get(position).id;
+                String nombre = obras.get(position).nombre;
+                Date datecreatelocal = obras.get(position).createdAtLocalDB;
+                String iduser = obras.get(position).iduser;
+
+                processSyncObra(id, nombre, datecreatelocal, iduser);
             }
         });
         recycler_obras.setAdapter(obraAdapter);
@@ -306,6 +312,62 @@ public class ObrasFragment extends Fragment {
         });
     }
 
+    private void processSyncObra(String id,  String nombre, Date createloacl, String iduser){
+        openDialogIndeterminate("Syncronizando");
+        Call<ObrasResponse> obra = ApiAdapter.getApiService().processSyncObra(id, nombre,createloacl,iduser);
+        obra.enqueue(new Callback<ObrasResponse>() {
+            @Override
+            public void onResponse(Call<ObrasResponse> call, Response<ObrasResponse> response) {
+                if (response.isSuccessful()) {
+                    dismissDialogIndeterminate();
+                    ObrasResponse obraResponse = response.body();
+
+                    if (obraResponse.error) {
+                        Toast.makeText(getActivity(), "ERROR", Toast.LENGTH_SHORT).show();
+                    } else {
+                        final RealmList<Obra> obras = obraResponse.obra;
+                        saveIntDataBase(obras);
+                    }
+
+                } else {
+//                    realm.close();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ObrasResponse> call, Throwable t) {
+                dismissDialogIndeterminate();
+                interfaceObras.showSnackBar("Sin Conexion con el A.P.I / Guardado en Local");
+
+//                final Obra obra = new Obra();
+//                obra.idlocal = getMaxIdObra();
+//                obra.nombre = nombreobra;
+//                obra.createdAt = null;
+//                obra.updatedAt = null;
+//                obra.createdAtLocalDB = getDateTime();
+//                obra.iduser = iduser;
+//
+//                realm.executeTransactionAsync(new Realm.Transaction() {
+//                    @Override
+//                    public void execute(Realm realm) {
+//                        realm.copyToRealmOrUpdate(obra);
+//                    }
+//                }, new Realm.Transaction.OnSuccess() {
+//                    @Override
+//                    public void onSuccess() {
+//                        checkObras();
+//                    }
+//                }, new Realm.Transaction.OnError() {
+//                    @Override
+//                    public void onError(Throwable error) {
+//                        Toast.makeText(getActivity(), "processAddObra onError", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+
+            }
+        });
+    }
+
     private int getMaxIdObra() {
         Number currentIdNum = realm.where(Obra.class).max("idlocal");
         int nextId;
@@ -327,8 +389,11 @@ public class ObrasFragment extends Fragment {
 
         int nextId = getMaxIdObra();
 
+
+
         for (int i = 0; i < obrasapi.size(); i++) {
-            if (obrasapi.get(i).sync == 0) {
+
+            if (obrasapi.get(i).id == "") {
                 obrasapi.get(i).idlocal = nextId;
                 nextId++;
             }
@@ -356,6 +421,25 @@ public class ObrasFragment extends Fragment {
 
     }
 
+    public void openDialogIndeterminate(String textcontent){
+        if (materialDialogIndeterminate == null) {
+            materialDialogIndeterminate = new MaterialDialog.Builder(getActivity()).autoDismiss(false)
+                    .content(textcontent)
+                    .cancelable(false)
+                    .progress(true, 0)
+                    .progressIndeterminateStyle(true)
+                    .build();
+            materialDialogIndeterminate.show();
+        }else{
+            materialDialogIndeterminate.show();
+        }
+    }
+
+    public void dismissDialogIndeterminate(){
+        if(materialDialogIndeterminate != null){
+            materialDialogIndeterminate.dismiss();
+        }
+    }
     public void openDialogAddOrEdit() {
         if (materialDialogAddOrEdit == null) {
             materialDialogAddOrEdit = new MaterialDialog.Builder(getActivity()).autoDismiss(false)

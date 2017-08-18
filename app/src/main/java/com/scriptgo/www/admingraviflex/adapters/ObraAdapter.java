@@ -51,7 +51,12 @@ public class ObraAdapter extends  RecyclerView.Adapter<ObraAdapter.ObraViewHolde
     @Override
     public void onBindViewHolder(ObraViewHolder holder, int position) {
         Obra obra = obras.get(position);
-        holder.txt_nombre.setText(obra.nombre + ' ' + obra.iduser );
+        holder.txt_nombre.setText(obra.nombre);
+        if(obra.id != null){
+            holder.img_iconsync.setImageResource(R.drawable.ic_cloud_done_black_24dp);
+        }else{
+            holder.img_iconsync.setImageResource(R.drawable.ic_access_time_black_24dp);
+        }
     }
 
     @Override
