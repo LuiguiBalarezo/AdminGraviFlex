@@ -245,11 +245,12 @@ public class ObrasFragment extends Fragment {
             public void onClickSync(View view, int position) {
 
                 String id = obras.get(position).id;
+                int idlocal = obras.get(position).idlocal;
                 String nombre = obras.get(position).nombre;
                 Date datecreatelocal = obras.get(position).createdAtLocalDB;
                 String iduser = obras.get(position).iduser;
 
-                processSyncObra(id, nombre, datecreatelocal, iduser);
+                processSyncObra(id, idlocal, nombre, datecreatelocal, iduser);
             }
         });
         recycler_obras.setAdapter(obraAdapter);
@@ -312,9 +313,9 @@ public class ObrasFragment extends Fragment {
         });
     }
 
-    private void processSyncObra(String id,  String nombre, Date createloacl, String iduser){
-        openDialogIndeterminate("Syncronizando");
-        Call<ObrasResponse> obra = ApiAdapter.getApiService().processSyncObra(id, nombre,createloacl,iduser);
+    private void processSyncObra(String id, int idlocal,  String nombre, Date createloacl, String iduser){
+        openDialogIndeterminate("Sincronizando");
+        Call<ObrasResponse> obra = ApiAdapter.getApiService().processSyncObra(id, idlocal, nombre,createloacl,iduser);
         obra.enqueue(new Callback<ObrasResponse>() {
             @Override
             public void onResponse(Call<ObrasResponse> call, Response<ObrasResponse> response) {
@@ -328,42 +329,15 @@ public class ObrasFragment extends Fragment {
                         final RealmList<Obra> obras = obraResponse.obra;
                         saveIntDataBase(obras);
                     }
-
                 } else {
-//                    realm.close();
+                    interfaceObras.showSnackBar("Error Sync");
                 }
             }
 
             @Override
             public void onFailure(Call<ObrasResponse> call, Throwable t) {
                 dismissDialogIndeterminate();
-                interfaceObras.showSnackBar("Sin Conexion con el A.P.I / Guardado en Local");
-
-//                final Obra obra = new Obra();
-//                obra.idlocal = getMaxIdObra();
-//                obra.nombre = nombreobra;
-//                obra.createdAt = null;
-//                obra.updatedAt = null;
-//                obra.createdAtLocalDB = getDateTime();
-//                obra.iduser = iduser;
-//
-//                realm.executeTransactionAsync(new Realm.Transaction() {
-//                    @Override
-//                    public void execute(Realm realm) {
-//                        realm.copyToRealmOrUpdate(obra);
-//                    }
-//                }, new Realm.Transaction.OnSuccess() {
-//                    @Override
-//                    public void onSuccess() {
-//                        checkObras();
-//                    }
-//                }, new Realm.Transaction.OnError() {
-//                    @Override
-//                    public void onError(Throwable error) {
-//                        Toast.makeText(getActivity(), "processAddObra onError", Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-
+                interfaceObras.showSnackBar("Sin Conexion con el A.P.I / No sincronizado");
             }
         });
     }
@@ -386,11 +360,7 @@ public class ObrasFragment extends Fragment {
 
     private void saveIntDataBase(final RealmList<Obra> obrasapi) {
         final RealmResults<Obra> obras = realm.where(Obra.class).findAll();
-
         int nextId = getMaxIdObra();
-
-
-
         for (int i = 0; i < obrasapi.size(); i++) {
 
             if (obrasapi.get(i).id == "") {
@@ -454,6 +424,7 @@ public class ObrasFragment extends Fragment {
                             final String nombreobra = edt_nombre_obra.getText().toString();
                             edt_nombre_obra.setText("");
                             materialDialogAddOrEdit.dismiss();
+
                             processAddObra(nombreobra);
                         }
                     }).onNegative(new MaterialDialog.SingleButtonCallback() {

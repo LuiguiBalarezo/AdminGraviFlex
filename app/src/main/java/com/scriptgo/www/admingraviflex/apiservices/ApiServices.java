@@ -58,6 +58,7 @@ public interface ApiServices {
     @POST("work/sync")
     @Headers(ConstansHelps.ACCESS_TOKEN)
     Call<ObrasResponse> processSyncObra(@Field("edt_id") String id,
+                                        @Field("edt_idlocal") int idlocal,
                                         @Field("edt_nombre") String namework,
                                         @Field("createdAtLocalDB") Date datecreatelocal,
                                         @Field("iduser") String iduser);
