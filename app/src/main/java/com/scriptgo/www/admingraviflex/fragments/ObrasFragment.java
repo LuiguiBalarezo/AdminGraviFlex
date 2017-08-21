@@ -54,11 +54,16 @@ public class ObrasFragment extends Fragment {
     // VARS
     boolean listobrasAPIempty = false;
     boolean listobrasDBempty = false;
-    private String iduser = "";
+    private Integer iduser = 0;
+    String TAG = this.getClass().getSimpleName();
     // UI
     View view = null;
     //TextView txt_prueba = null;
-    MaterialDialog materialDialogAddOrEdit = null, materialDialog = null, materialDialogIndeterminate = null;
+    MaterialDialog materialDialogAdd = null,
+            materialDialogEdit = null,
+            materialDialog = null,
+            materialDialogIndeterminate = null;
+
     EditText edt_nombre_obra;
     RecyclerView recycler_obras;
     TextView txt_vacio;
@@ -115,7 +120,6 @@ public class ObrasFragment extends Fragment {
         txt_vacio = (TextView) view.findViewById(R.id.txt_vacio);
 
 
-
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recycler_obras.setLayoutManager(layoutManager);
@@ -152,7 +156,8 @@ public class ObrasFragment extends Fragment {
     private void processGetListObras() {
         dismissDialog();
         openDialog("Extrayendo Obras del A.P.I");
-        final Call<ObrasResponse> obra = ApiAdapter.getApiService().processGetAllObra();
+        iduser = getIdUser();
+        final Call<ObrasResponse> obra = ApiAdapter.getApiService().processGetAllObra(iduser);
         obra.enqueue(new Callback<ObrasResponse>() {
             @Override
             public void onResponse(Call<ObrasResponse> call, Response<ObrasResponse> response) {
@@ -163,32 +168,36 @@ public class ObrasFragment extends Fragment {
                     if (obraResponse.error) {
 
                         dismissDialog();
-                        interfaceObras.showSnackBar("Error en la peticion A.P.I, " + obraResponse.message);
+                        interfaceObras.showSnackBar("Error : Listar Obras");
 
                     } else {
 
-//                        realm = Realm.getDefaultInstance();
                         final RealmList<Obra> obrasAPI = obraResponse.obra;
                         final RealmResults<Obra> obrasDB = realm.where(Obra.class).findAll();
 
                         listobrasAPIempty = (obrasAPI.size() == 0) ? true : false;
                         listobrasDBempty = (obrasDB.size() == 0) ? true : false;
 
-                        if (listobrasAPIempty) {
-                            if (listobrasDBempty) {
-                                showTextEmptyHiddeRecycler();
-                            } else {
-                                showRecyclerHiddeTextEmpty();
-                                setAddAdapter(obrasDB);
-                            }
-                        } else {
+                        if (listobrasAPIempty && listobrasDBempty) {
+                            Log.d(TAG, "api = 0 / db = 0");
+                            showTextEmptyHiddeRecycler();
+                        } else if (listobrasAPIempty && !listobrasDBempty) {
+                            Log.d(TAG, "api = 0 / db = full");
+                            setAddAdapter(obrasDB);
                             showRecyclerHiddeTextEmpty();
+                        } else if (!listobrasAPIempty && listobrasDBempty) {
+                            Log.d(TAG, "api = full / db = 0");
+                            saveIntDataBase(obrasAPI);
+                            showRecyclerHiddeTextEmpty();
+                        } else if (!listobrasAPIempty && !listobrasDBempty) {
+                            Log.d(TAG, "api = full / db = full");
                             saveIntDataBase(obrasAPI);
                         }
 
+
                     }
                 } else {
-                    interfaceObras.showSnackBar("Error : Falló la transformación a GSON de Retrofit");
+                    interfaceObras.showSnackBar("Respuesta erronea al Obtener Obras!");
                 }
             }
 
@@ -198,7 +207,6 @@ public class ObrasFragment extends Fragment {
                 dismissDialog();
                 openDialog("Extrayendo obras de BD Local");
 
-//                realm = Realm.getDefaultInstance();
                 final RealmResults<Obra> obrasDB = realm.where(Obra.class).findAll();
 
                 if (obrasDB.size() == 0) {
@@ -227,6 +235,11 @@ public class ObrasFragment extends Fragment {
         });
     }
 
+    private Integer getIdUser() {
+        Usuario usuario = realm.where(Usuario.class).findFirst();
+        return iduser = usuario.id;
+    }
+
     private void showRecyclerHiddeTextEmpty() {
         recycler_obras.setVisibility(View.VISIBLE);
         txt_vacio.setVisibility(View.GONE);
@@ -244,25 +257,47 @@ public class ObrasFragment extends Fragment {
             @Override
             public void onClickSync(View view, int position) {
 
-                String id = obras.get(position).id;
+                Integer id = obras.get(position).id;
                 int idlocal = obras.get(position).idlocal;
-                String nombre = obras.get(position).nombre;
+                String nombre = obras.get(position).name;
                 Date datecreatelocal = obras.get(position).createdAtLocalDB;
-                String iduser = obras.get(position).iduser;
+                int iduser = obras.get(position).iduser;
 
                 processSyncObra(id, idlocal, nombre, datecreatelocal, iduser);
+
+            }
+
+            @Override
+            public void onClickViewDetail(View view, int position) {
+                Toast.makeText(view.getContext(), "View Detail", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onLongClickOptions(View view, int position) {
+                Integer id = obras.get(position).id,
+                        idlocal = obras.get(position).idlocal;
+                String name = obras.get(position).name;
+
+                Toast.makeText(view.getContext(), "Long Update " + id + " " + idlocal + " " + name, Toast.LENGTH_SHORT).show();
+                openDialogEdit(id, idlocal, name);
+
             }
         });
         recycler_obras.setAdapter(obraAdapter);
         obraAdapter.notifyDataSetChanged();
     }
 
-    private void processAddObra(final String nombreobra) {
+    private void processCreateObra(final String nombreobra) {
         dismissDialog();
         openDialog("Enviando Obra al A.P.I");
-        Usuario usuario = realm.where(Usuario.class).findFirst();
-        iduser = usuario.id;
-        Call<ObrasResponse> obra = ApiAdapter.getApiService().processAddObra(nombreobra);
+
+        //Usuario usuario = realm.where(Usuario.class).findFirst();
+        Integer id = null;
+        Integer idlocal = getMaxIdObra();
+        Date createdAtLocalDB = getDateTime();
+        iduser = getIdUser();
+
+        Call<ObrasResponse> obra = ApiAdapter.getApiService().processCreateObra(id, idlocal, nombreobra, createdAtLocalDB, iduser);
         obra.enqueue(new Callback<ObrasResponse>() {
             @Override
             public void onResponse(Call<ObrasResponse> call, Response<ObrasResponse> response) {
@@ -273,9 +308,10 @@ public class ObrasFragment extends Fragment {
                     } else {
                         final RealmList<Obra> obras = obraResponse.obra;
                         saveIntDataBase(obras);
+                        interfaceObras.showSnackBar("Sincronizado");
                     }
                 } else {
-//                    realm.close();
+                    interfaceObras.showSnackBar("Respuesta erronea al Agregar Obra!");
                 }
             }
 
@@ -286,7 +322,7 @@ public class ObrasFragment extends Fragment {
 
                 final Obra obra = new Obra();
                 obra.idlocal = getMaxIdObra();
-                obra.nombre = nombreobra;
+                obra.name = nombreobra;
                 obra.createdAt = null;
                 obra.updatedAt = null;
                 obra.createdAtLocalDB = getDateTime();
@@ -313,9 +349,67 @@ public class ObrasFragment extends Fragment {
         });
     }
 
-    private void processSyncObra(String id, int idlocal,  String nombre, Date createloacl, String iduser){
+    private void processUpdateObra(Integer id, Integer idlocal, final String nombreobra) {
+        dismissDialog();
+        openDialog("Actualizando");
+        Date updatedAtLocalDB = getDateTime();
+        iduser = getIdUser();
+
+        Call<ObrasResponse> obra = ApiAdapter.getApiService().processUpdateObra(id, nombreobra, updatedAtLocalDB, iduser);
+        obra.enqueue(new Callback<ObrasResponse>() {
+            @Override
+            public void onResponse(Call<ObrasResponse> call, Response<ObrasResponse> response) {
+                if (response.isSuccessful()) {
+                    ObrasResponse obraResponse = response.body();
+                    if (obraResponse.error) {
+                        Toast.makeText(getActivity(), "ERROR", Toast.LENGTH_SHORT).show();
+                    } else {
+                        final RealmList<Obra> obras = obraResponse.obra;
+                        saveIntDataBase(obras);
+                        interfaceObras.showSnackBar("Sincronizado");
+                    }
+                } else {
+                    interfaceObras.showSnackBar("Respuesta erronea al Agregar Obra!");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ObrasResponse> call, Throwable t) {
+
+                interfaceObras.showSnackBar("Sin Conexion con el A.P.I / Guardado en Local");
+
+//                final Obra obra = new Obra();
+//                obra.idlocal = getMaxIdObra();
+//                obra.name = nombreobra;
+//                obra.createdAt = null;
+//                obra.updatedAt = null;
+//                obra.createdAtLocalDB = getDateTime();
+//                obra.iduser = iduser;
+//
+//                realm.executeTransactionAsync(new Realm.Transaction() {
+//                    @Override
+//                    public void execute(Realm realm) {
+//                        realm.copyToRealmOrUpdate(obra);
+//                    }
+//                }, new Realm.Transaction.OnSuccess() {
+//                    @Override
+//                    public void onSuccess() {
+//                        checkObras();
+//                    }
+//                }, new Realm.Transaction.OnError() {
+//                    @Override
+//                    public void onError(Throwable error) {
+//                        Toast.makeText(getActivity(), "processAddObra onError", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+
+            }
+        });
+    }
+
+    private void processSyncObra(Integer id, int idlocal, String nombre, Date createloacl, int iduser) {
         openDialogIndeterminate("Sincronizando");
-        Call<ObrasResponse> obra = ApiAdapter.getApiService().processSyncObra(id, idlocal, nombre,createloacl,iduser);
+        Call<ObrasResponse> obra = ApiAdapter.getApiService().processSyncObra(id, idlocal, nombre, createloacl, null, iduser);
         obra.enqueue(new Callback<ObrasResponse>() {
             @Override
             public void onResponse(Call<ObrasResponse> call, Response<ObrasResponse> response) {
@@ -328,9 +422,10 @@ public class ObrasFragment extends Fragment {
                     } else {
                         final RealmList<Obra> obras = obraResponse.obra;
                         saveIntDataBase(obras);
+                        interfaceObras.showSnackBar("Sincronizado");
                     }
                 } else {
-                    interfaceObras.showSnackBar("Error Sync");
+                    interfaceObras.showSnackBar("Respuesta erronea al Sincronizar Obra!");
                 }
             }
 
@@ -359,18 +454,20 @@ public class ObrasFragment extends Fragment {
     }
 
     private void saveIntDataBase(final RealmList<Obra> obrasapi) {
-        final RealmResults<Obra> obras = realm.where(Obra.class).findAll();
         int nextId = getMaxIdObra();
         for (int i = 0; i < obrasapi.size(); i++) {
-
-            if (obrasapi.get(i).id == "") {
+            Integer id = obrasapi.get(i).id;
+            int idlocal = obrasapi.get(i).idlocal;
+            int status = obrasapi.get(i).status;
+            String name = obrasapi.get(i).name;
+            if (obrasapi.get(i).id == null) {
+                obrasapi.get(i).idlocal = nextId;
+                nextId++;
+            } else if (obrasapi.get(i).idlocal == 0) {
                 obrasapi.get(i).idlocal = nextId;
                 nextId++;
             }
         }
-
-        Log.d("OBRAS API ", "TERMINO");
-
         realmAsyncTask = realm.executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
@@ -388,10 +485,9 @@ public class ObrasFragment extends Fragment {
                 Toast.makeText(getActivity(), "saveIntDataBase onError", Toast.LENGTH_SHORT).show();
             }
         });
-
     }
 
-    public void openDialogIndeterminate(String textcontent){
+    public void openDialogIndeterminate(String textcontent) {
         if (materialDialogIndeterminate == null) {
             materialDialogIndeterminate = new MaterialDialog.Builder(getActivity()).autoDismiss(false)
                     .content(textcontent)
@@ -400,19 +496,20 @@ public class ObrasFragment extends Fragment {
                     .progressIndeterminateStyle(true)
                     .build();
             materialDialogIndeterminate.show();
-        }else{
+        } else {
             materialDialogIndeterminate.show();
         }
     }
 
-    public void dismissDialogIndeterminate(){
-        if(materialDialogIndeterminate != null){
+    public void dismissDialogIndeterminate() {
+        if (materialDialogIndeterminate != null) {
             materialDialogIndeterminate.dismiss();
         }
     }
-    public void openDialogAddOrEdit() {
-        if (materialDialogAddOrEdit == null) {
-            materialDialogAddOrEdit = new MaterialDialog.Builder(getActivity()).autoDismiss(false)
+
+    public void openDialogAdd() {
+        if (materialDialogAdd == null) {
+            materialDialogAdd = new MaterialDialog.Builder(getActivity()).autoDismiss(false)
                     .title("Nueva Obra")
                     .customView(R.layout.dialog_obra, true)
                     .positiveText("Crear")
@@ -423,20 +520,56 @@ public class ObrasFragment extends Fragment {
                             edt_nombre_obra = (EditText) dialog.findViewById(R.id.edt_nombre_obra);
                             final String nombreobra = edt_nombre_obra.getText().toString();
                             edt_nombre_obra.setText("");
-                            materialDialogAddOrEdit.dismiss();
+                            materialDialogAdd.dismiss();
 
-                            processAddObra(nombreobra);
+                            processCreateObra(nombreobra);
+
                         }
                     }).onNegative(new MaterialDialog.SingleButtonCallback() {
                         @Override
                         public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                            materialDialogAddOrEdit.dismiss();
+                            materialDialogAdd.dismiss();
                         }
                     })
                     .build();
-            materialDialogAddOrEdit.show();
+            materialDialogAdd.show();
         } else {
-            materialDialogAddOrEdit.show();
+            materialDialogAdd.show();
+        }
+    }
+
+    public void openDialogEdit(Integer _id, Integer _idlocal, String _name){
+        final Integer id = _id;
+        final Integer idlocal = _idlocal;
+
+
+        if (materialDialogEdit == null) {
+            materialDialogEdit = new MaterialDialog.Builder(getActivity()).autoDismiss(false)
+                    .title("Nueva Obra")
+                    .customView(R.layout.dialog_obra, true)
+                    .positiveText("Editar")
+                    .negativeText("Salir")
+                    .onPositive(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            final String nombreobra = edt_nombre_obra.getText().toString();
+                            edt_nombre_obra.setText("");
+                            materialDialogEdit.dismiss();
+                            processUpdateObra(id, idlocal, nombreobra);
+                        }
+                    }).onNegative(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            materialDialogEdit.dismiss();
+                        }
+                    })
+                    .build();
+            edt_nombre_obra = (EditText) materialDialogEdit.findViewById(R.id.edt_nombre_obra);
+            edt_nombre_obra.setText(_name);
+            materialDialogEdit.show();
+        } else {
+            edt_nombre_obra.setText(_name);
+            materialDialogEdit.show();
         }
     }
 

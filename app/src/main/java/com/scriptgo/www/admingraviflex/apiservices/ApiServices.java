@@ -12,6 +12,7 @@ import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
 
 /**
  * Created by BALAREZO on 10/08/2017.
@@ -45,22 +46,35 @@ public interface ApiServices {
     /*
     *  OBRAS
     **/
-    @GET("works")
+    @GET("works/{edt_iduser}/")
     @Headers(ConstansHelps.ACCESS_TOKEN)
-    Call<ObrasResponse> processGetAllObra();
+    Call<ObrasResponse> processGetAllObra(@Path("edt_iduser") int iduser);
 
     @FormUrlEncoded
-    @POST("work/add")
+    @POST("work/create")
     @Headers(ConstansHelps.ACCESS_TOKEN)
-    Call<ObrasResponse> processAddObra(@Field("edt_nombre") String namework);
+    Call<ObrasResponse> processCreateObra(@Field("edt_id") Integer id,
+                                       @Field("edt_idlocal") Integer idlocal,
+                                       @Field("edt_nombre") String namework,
+                                       @Field("createdAtLocalDB") Date datecreatelocal,
+                                       @Field("edt_iduser") Integer iduser);
+
+    @FormUrlEncoded
+    @POST("work/update")
+    @Headers(ConstansHelps.ACCESS_TOKEN)
+    Call<ObrasResponse> processUpdateObra(@Field("edt_id") Integer id,
+                                       @Field("edt_nombre") String namework,
+                                       @Field("updatedAtLocalDB") Date dateupdatelocal,
+                                       @Field("edt_iduser") Integer iduser);
 
     @FormUrlEncoded
     @POST("work/sync")
     @Headers(ConstansHelps.ACCESS_TOKEN)
-    Call<ObrasResponse> processSyncObra(@Field("edt_id") String id,
-                                        @Field("edt_idlocal") int idlocal,
+    Call<ObrasResponse> processSyncObra(@Field("edt_id") Integer id,
+                                        @Field("edt_idlocal") Integer idlocal,
                                         @Field("edt_nombre") String namework,
                                         @Field("createdAtLocalDB") Date datecreatelocal,
-                                        @Field("iduser") String iduser);
+                                        @Field("updatedAtLocalDB") Date dateupdatelocal,
+                                        @Field("edt_iduser") Integer iduser);
 
 }

@@ -130,7 +130,7 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void onClick(View v) {
                     ObrasFragment obrasFragment = (ObrasFragment) getSupportFragmentManager().findFragmentByTag(ObrasFragment.class.getSimpleName());
-                    obrasFragment.openDialogAddOrEdit();
+                    obrasFragment.openDialogAdd();
                 }
             });
         } else if (iditemnav == R.id.nav_egresos) {

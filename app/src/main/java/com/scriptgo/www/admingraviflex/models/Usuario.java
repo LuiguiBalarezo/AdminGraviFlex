@@ -9,16 +9,18 @@ import io.realm.annotations.PrimaryKey;
 
 public class Usuario extends RealmObject {
     @PrimaryKey
-    public String id;
-    public String nombre;
-    public String apellidopaterno;
-    public String apellidomaterno;
-    public String usuario;
-    public int edad;
-    public String clave;
-    public String correo;
+    public Integer id;
+    public String name;
+    public String firstlastname;
+    public String secondlastname;
+    public String user;
+    public Integer gear;
+    public String password;
+    public String email;
     public String createdAt;
     public String updatedAt;
+    public Integer status;
+    public Integer type;
 
     public Usuario() {
     }

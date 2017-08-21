@@ -8,4 +8,6 @@ import android.view.View;
 
 public interface ObrasClickRecyclerView {
     void onClickSync(View view ,  int position);
+    void onClickViewDetail(View view ,  int position);
+    void onLongClickOptions(View view ,  int position);
 }
