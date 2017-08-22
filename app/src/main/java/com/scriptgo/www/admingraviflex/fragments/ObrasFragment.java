@@ -565,7 +565,7 @@ public class ObrasFragment extends Fragment {
                     })
                     .build();
             edt_nombre_obra = (EditText) materialDialogEdit.findViewById(R.id.edt_nombre_obra);
-            edt_nombre_obra.setText(_name);
+            edt_nombre_obra.setText(id + " " + idlocal + " " + _name);
             materialDialogEdit.show();
         } else {
             edt_nombre_obra.setText(_name);
