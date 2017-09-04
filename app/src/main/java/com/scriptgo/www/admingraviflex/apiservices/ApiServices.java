@@ -50,6 +50,10 @@ public interface ApiServices {
     @Headers(ConstansHelps.ACCESS_TOKEN)
     Call<ObrasResponse> processGetAllObra(@Path("edt_iduser") int iduser);
 
+    @GET("works/{edt_iduser}/getall_id_name")
+    @Headers(ConstansHelps.ACCESS_TOKEN)
+    Call<ObrasResponse> processGetAllObraActive_ID_NAME(@Path("edt_iduser") int iduser);
+
     @FormUrlEncoded
     @POST("work/create")
     @Headers(ConstansHelps.ACCESS_TOKEN)

@@ -99,7 +99,7 @@ public class LoginFragment extends Fragment {
 
                 if (response.isSuccessful()) {
                     LoginResponse loginResponse = response.body();
-                    if (loginResponse.error) {
+                    if (loginResponse.error == 1) {
                         loginActivityFragment.finishValidateUser("Usuario o Clave Incorrectos");
                         openDialog();
                     } else {

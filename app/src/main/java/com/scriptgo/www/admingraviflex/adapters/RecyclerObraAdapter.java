@@ -18,14 +18,14 @@ import io.realm.RealmList;
  * Created by BALAREZO on 11/08/2017.
  */
 
-public class ObraAdapter extends  RecyclerView.Adapter<ObraAdapter.ObraViewHolder>{
+public class RecyclerObraAdapter extends  RecyclerView.Adapter<RecyclerObraAdapter.ObraViewHolder>{
 
     private RealmList<Obra> obras;
     private Context context;
 
     ObrasClickRecyclerView listener;
 
-    public ObraAdapter(Context ctx, RealmList<Obra> obras , ObrasClickRecyclerView listener) {
+    public RecyclerObraAdapter(Context ctx, RealmList<Obra> obras , ObrasClickRecyclerView listener) {
         this.context = ctx;
         this.obras = obras;
         this.listener = listener;
@@ -68,28 +68,13 @@ public class ObraAdapter extends  RecyclerView.Adapter<ObraAdapter.ObraViewHolde
     @Override
     public void onBindViewHolder(ObraViewHolder holder, int position) {
         Obra obra = obras.get(position);
-        holder.txt_nombre.setText(" idserver : " +obra.id+
-                                  " idlocal : " + obra.idlocal +
-                                  " nombre : " + obra.name);
+        holder.txt_nombre.setText(obra.name);
 
-
-
-        if(obra.id != null){
+        if(obra.id != 0){
             holder.img_iconsync.setImageResource(R.drawable.ic_cloud_done_black_24dp);
+            holder.img_iconsync.setOnClickListener(null);
         }else{
             holder.img_iconsync.setImageResource(R.drawable.ic_access_time_black_24dp);
-//            holder.img_iconsync.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    listener.onClickSync(v,  obraViewHolder.getAdapterPosition());
-//                }
-//            });
-        }
-
-        if(obra.status != null){
-            holder.img_iconstatus.setImageResource(R.drawable.ic_enabled_work_24dp);
-        }else{
-            holder.img_iconstatus.setImageResource(R.drawable.ic_disable_work_24dp);
         }
 
     }
@@ -103,12 +88,10 @@ public class ObraAdapter extends  RecyclerView.Adapter<ObraAdapter.ObraViewHolde
 
         private TextView txt_nombre;
         private ImageView img_iconsync;
-        private ImageView img_iconstatus;
 
         public ObraViewHolder(View itemView) {
             super(itemView);
             txt_nombre = (TextView)itemView.findViewById(R.id.txt_nombre_obra);
-            img_iconstatus = (ImageView)itemView.findViewById(R.id.img_iconstatus);
             img_iconsync = (ImageView)itemView.findViewById(R.id.img_iconsync);
         }
 

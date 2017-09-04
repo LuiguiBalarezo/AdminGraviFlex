@@ -22,6 +22,12 @@
 
     <item android:title="Communicate">
         <menu>
+
+            <item
+                android:id="@+id/nav_configuracion"
+                android:icon="@drawable/ic_settings_black_24dp"
+                android:title="Configuracion" />
+
             <item
                 android:id="@+id/nav_salir"
                 android:icon="@drawable/ic_power_settings_new_black_24dp"

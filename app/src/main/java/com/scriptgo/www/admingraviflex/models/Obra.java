@@ -11,17 +11,17 @@ import io.realm.annotations.PrimaryKey;
 
 public class Obra extends RealmObject {
 
-    public Integer id;
+    public int id;
     @PrimaryKey
-    public Integer idlocal;
+    public int idlocal;
     public String name;
     public Date createdAt;
     public Date updatedAt;
     public Date createdAtLocalDB;
     public Date updatedAtLocalDB;
-    public Integer sync;
-    public Integer status;
-    public Integer iduser;
+    public int sync;
+    public int status;
+    public int iduser;
     public Obra() {
     }
 }

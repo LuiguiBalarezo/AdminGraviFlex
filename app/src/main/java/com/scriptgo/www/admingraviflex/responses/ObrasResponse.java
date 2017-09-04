@@ -12,6 +12,6 @@ import io.realm.RealmList;
 public class ObrasResponse {
     @SerializedName(value="data")
     public RealmList<Obra> obra;
-    public boolean error;
+    public int error;
     public String message;
 }

@@ -15,34 +15,33 @@
 
         <TextView
             android:id="@+id/txt_nombre_obra"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
+            android:layout_width="260dp"
+            android:layout_height="18dp"
             android:layout_marginLeft="16dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginTop="8dp"
+            android:textStyle="bold"
             android:text="Nombre de la Obra"
 
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@+id/img_iconstatus"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.518" />
-
-        <ImageView
-            android:id="@+id/img_iconstatus"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginRight="18dp"
             android:layout_marginTop="8dp"
-            android:textSize="10sp"
             app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="8dp" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="21dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
+            android:background="@color/grey_300"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@+id/txt_nombre_obra"
             app:layout_constraintRight_toLeftOf="@+id/img_iconsync"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.517"
-            app:srcCompat="@drawable/ic_disable_work_24dp" />
+            app:layout_constraintHorizontal_bias="0.666"
+            app:layout_constraintVertical_bias="0.521"
+            android:id="@+id/view2" />
 
         <ImageView
             android:id="@+id/img_iconsync"

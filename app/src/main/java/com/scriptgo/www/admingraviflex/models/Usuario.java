@@ -9,18 +9,18 @@ import io.realm.annotations.PrimaryKey;
 
 public class Usuario extends RealmObject {
     @PrimaryKey
-    public Integer id;
+    public int id;
     public String name;
     public String firstlastname;
     public String secondlastname;
     public String user;
-    public Integer gear;
+    public int gear;
     public String password;
     public String email;
     public String createdAt;
     public String updatedAt;
-    public Integer status;
-    public Integer type;
+    public int status;
+    public int type;
 
     public Usuario() {
     }

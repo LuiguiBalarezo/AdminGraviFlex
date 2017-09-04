@@ -5,6 +5,6 @@ package com.scriptgo.www.admingraviflex.interfaces;
  */
 
 public interface ObrasFragmentToActivity {
-    void showSnackBar(String msg);
+    void showSnackBar(String msg, String type);
     void dismissSnackBar();
 }

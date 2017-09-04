@@ -12,6 +12,6 @@ public class LoginResponse {
     * @data: es el Objeto retornado del api, y sera entregado al objeto Usuario*/
     @SerializedName(value="data")
     public Usuario usuario;
-    public boolean error;
+    public int error;
     public String message;
 }

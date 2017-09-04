@@ -1,5 +1,6 @@
 package com.scriptgo.www.admingraviflex;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -7,6 +8,7 @@ import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -33,17 +35,18 @@ public class MainActivity extends AppCompatActivity
         NavigationView.OnNavigationItemSelectedListener {
 
     // UI
+    View view;
     Toolbar toolbar;
     FloatingActionButton fab;
     DrawerLayout drawer;
     NavigationView navigationView;
-    Snackbar snackbar =  null;
-    View view;
+    Snackbar snackbar = null;
+    ActionBarDrawerToggle toggle;
     // TRANSACTION
     FragmentManager fragmentManager;
 
-    ActionBarDrawerToggle toggle ;
-
+    /* ITEM */
+    Intent intentpreferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,10 +68,10 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         if (savedInstanceState == null) {
-           // toolbar.setNavigationIcon(null);
+            // toolbar.setNavigationIcon(null);
             //drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             changeFragment(R.id.nav_obras);
-        }else{
+        } else {
             //drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN);
         }
     }
@@ -117,63 +120,67 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-
-    private void changeFragment(int iditemnav){
+    private void changeFragment(int iditemnav) {
 
         Fragment fragment = null;
         Class fragmentClass = null;
 
-        if (iditemnav == R.id.nav_obras) {
-            fragmentClass = ObrasFragment.class;
-            toolbar.setTitle("Obras");
-            fab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ObrasFragment obrasFragment = (ObrasFragment) getSupportFragmentManager().findFragmentByTag(ObrasFragment.class.getSimpleName());
-                    obrasFragment.openDialogAdd();
-                }
-            });
-        } else if (iditemnav == R.id.nav_egresos) {
-            fragmentClass = EgresosFragment.class;
-            toolbar.setTitle("Egresos");
-            fab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+        switch (iditemnav) {
+            case R.id.nav_obras:
+                fragmentClass = ObrasFragment.class;
+                toolbar.setTitle("Obras");
+                fab.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ObrasFragment obrasFragment = (ObrasFragment) getSupportFragmentManager().findFragmentByTag(ObrasFragment.class.getSimpleName());
+                        obrasFragment.openDialogAdd();
+                    }
+                });
+                transactionFragment(fragment, fragmentClass);
+                break;
+            case R.id.nav_egresos:
+                fragmentClass = EgresosFragment.class;
+                toolbar.setTitle("Egresos");
+                fab.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
 
-                }
-            });
-        } else if (iditemnav == R.id.nav_ingresos) {
-            fragmentClass = IngresosFragment.class;
-            toolbar.setTitle("Ingresos");
-            fab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+                    }
+                });
+                transactionFragment(fragment, fragmentClass);
+                break;
+            case R.id.nav_ingresos:
+                fragmentClass = IngresosFragment.class;
+                toolbar.setTitle("Ingresos");
+                fab.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
 
-                }
-            });
-        } else if (iditemnav == R.id.nav_valoraciones ){
-            fragmentClass = ValoracionesFragment.class;
-            toolbar.setTitle("Valoraciones");
-            fab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+                    }
+                });
+                transactionFragment(fragment, fragmentClass);
+                break;
+            case  R.id.nav_valoraciones:
+                fragmentClass = ValoracionesFragment.class;
+                toolbar.setTitle("Valoraciones");
+                fab.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
 
-                }
-            });
-        } else if (iditemnav == R.id.nav_salir) {
-
-        }else{
-            Toast.makeText(this, "NO EXISTE ITEM DE MENU", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                transactionFragment(fragment, fragmentClass);
+                break;
+            case R.id.nav_configuracion:
+                Toast.makeText(this, "Configuraciones", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.nav_salir:
+                Toast.makeText(this, "Salir", Toast.LENGTH_SHORT).show();
+                break;
+            default:
+                Toast.makeText(this, "NO EXISTE ITEM DE MENU", Toast.LENGTH_SHORT).show();
+                break;
         }
-
-        try {
-            fragment = (Fragment) fragmentClass.newInstance();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.container_framelayout, fragment, fragment.getClass().getSimpleName()).commit();
 
         drawer.closeDrawer(GravityCompat.START);
     }
@@ -185,22 +192,54 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+
+
     @Override
-    public void showSnackBar(String msg) {
+    public void showSnackBar(String msg, String type) {
         snackbar = Snackbar.make(view, msg, Snackbar.LENGTH_INDEFINITE);
+        View snackBarView = snackbar.getView();
         snackbar.setAction("dismiss", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 snackbar.dismiss();
             }
         });
+        switch (type){
+            case "log":
+                snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.grey_900));
+                break;
+            case "success":
+                snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.green_500));
+                break;
+            case "error":
+                snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.red_500));
+                break;
+            case "info":
+                snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.orange_500));
+                break;
+        }
         snackbar.setAction("Action", null).show();
     }
 
     @Override
     public void dismissSnackBar() {
-        if(snackbar != null){
+        if (snackbar != null) {
             snackbar.dismiss();
         }
+    }
+
+    void transactionFragment(Fragment fragment, Class fragmentClass){
+        try {
+            fragment = (Fragment) fragmentClass.newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.container_framelayout, fragment, fragment.getClass().getSimpleName()).commit();
+    }
+
+    private void startMainActivity(Intent intent, Class ClassActivity){
+        intent = new Intent(this, ClassActivity);
+        startActivity(intent);
     }
 }
