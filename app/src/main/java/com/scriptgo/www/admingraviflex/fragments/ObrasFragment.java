@@ -20,11 +20,12 @@ import com.scriptgo.www.admingraviflex.adapters.RecyclerObraAdapter;
 import com.scriptgo.www.admingraviflex.apiadapter.ApiAdapter;
 import com.scriptgo.www.admingraviflex.bases.BaseFragments;
 import com.scriptgo.www.admingraviflex.compound.ProgressCircularText;
+import com.scriptgo.www.admingraviflex.interfaces.CallBackProcessObraApi;
 import com.scriptgo.www.admingraviflex.interfaces.ObrasClickRecyclerView;
 import com.scriptgo.www.admingraviflex.interfaces.ObrasFragmentToActivity;
-import com.scriptgo.www.admingraviflex.interfaces.ProcessObraApi;
 import com.scriptgo.www.admingraviflex.models.Obra;
 import com.scriptgo.www.admingraviflex.responses.ObrasResponse;
+import com.scriptgo.www.admingraviflex.services.ObraServiceAPI;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -40,20 +41,16 @@ import retrofit2.Response;
 
 
 public class ObrasFragment extends BaseFragments {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
     private ObrasFragmentToActivity interfaceObras;
 
     // RESPONSE
-//    Call<ObrasResponse> obraservicegetlist = null;
     Call<ObrasResponse> obraservicecreate = null;
 
     // VARS
@@ -62,7 +59,6 @@ public class ObrasFragment extends BaseFragments {
     String TAG = this.getClass().getSimpleName();
 
     // UI
-//    View view = null;
     MaterialDialog materialDialogAdd = null,
             materialDialogEdit = null,
             materialDialog = null,
@@ -80,22 +76,13 @@ public class ObrasFragment extends BaseFragments {
     // ADAPTER
     private RecyclerObraAdapter recyclerObraAdapter;
 
-    //RESPPONSE
-//    ObrasResponse obraResponse = null;
+    /* SERVICES */
+    ObraServiceAPI obraServiceAPI = null;
 
     public ObrasFragment() {
-        // Required empty public constructor
+
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ObrasFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static ObrasFragment newInstance(String param1, String param2) {
         ObrasFragment fragment = new ObrasFragment();
         Bundle args = new Bundle();
@@ -108,45 +95,26 @@ public class ObrasFragment extends BaseFragments {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setHasOptionsMenu(true);
-
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
-//        realm = Realm.getDefaultInstance();
-
+        obraServiceAPI = new ObraServiceAPI(iduser);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_obras, container, false);
-
-        progressCircularText = (ProgressCircularText) view.findViewById(R.id.pgrs_obra);
-
-        recycler_obras = (RecyclerView) view.findViewById(R.id.recyclerview_obras);
-        txt_vacio = (TextView) view.findViewById(R.id.txt_vacio);
-
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
-        layoutManager.setAutoMeasureEnabled(false);
-        recycler_obras.setLayoutManager(layoutManager);
-
-        visibleViewContent(null);
-
-
+        initUI();
         return view;
     }
 
     void visibleViewContent(String viewcontent) {
-
         progressCircularText.setVisibility(View.GONE);
         recycler_obras.setVisibility(View.GONE);
         txt_vacio.setVisibility(View.GONE);
-
         if (viewcontent != null) {
             switch (viewcontent) {
                 case "progress":
@@ -164,8 +132,6 @@ public class ObrasFragment extends BaseFragments {
             recycler_obras.setVisibility(View.GONE);
             txt_vacio.setVisibility(View.GONE);
         }
-
-
     }
 
     @Override
@@ -185,75 +151,38 @@ public class ObrasFragment extends BaseFragments {
         interfaceObras = null;
     }
 
-
     @Override
     public void onResume() {
         Log.d(TAG, "onResume");
         super.onResume();
+        apigetallobras();
         interfaceObras.dismissSnackBar();
 
-        getServiceObrasAllActive(new ProcessObraApi() {
-            @Override
-            public void processDataAPI(RealmList<Obra> obrasAPI) {
-
-                listobrasAPIempty = (obrasAPI.size() == 0) ? true : false;
-
-                final RealmResults<Obra> obrasDB = realm.where(Obra.class).findAll();
-                listobrasDBempty = (obrasDB.size() == 0) ? true : false;
-
-                if (listobrasAPIempty && listobrasDBempty) {
-                    visibleViewContent("empty");
-                } else if (listobrasAPIempty && !listobrasDBempty) {
-                    visibleViewContent("recycler");
-                    setAddAdapter(obrasDB);
-                } else if (!listobrasAPIempty && listobrasDBempty) {
-                    visibleViewContent("recycler");
-                    saveIntDataBase(obrasAPI, true);
-                } else if (!listobrasAPIempty && !listobrasDBempty) {
-                    visibleViewContent("recycler");
-                    saveIntDataBase(obrasAPI, true);
-                }
-
-            }
-
-            @Override
-            public void processDataLocal() {
-                interfaceObras.showSnackBar("Sin Conexion con el A.P.I / Obras de DB Local", "info");
-                final RealmResults<Obra> obrasDB = realm.where(Obra.class).findAll();
-                if (obrasDB.size() == 0) {
-                    visibleViewContent("empty");
-                } else {
-                    visibleViewContent("recycler");
-                    setAddAdapter(obrasDB);
-                }
-            }
-        });
 
     }
 
     @Override
     public void onStop() {
-
-        Log.d(TAG, "onStop");
-
         super.onStop();
+        interfaceObras.dismissSnackBar();
+        obraServiceAPI.cancelServices();
 
         if (obraservicecreate != null) {
             obraservicecreate.cancel();
         }
-
         dismissDialogIndeterminate();
-
-
     }
 
     @Override
     public void onDestroy() {
-        Log.d(TAG, "onDestroy");
         super.onDestroy();
+
+        obraServiceAPI.cancelServices();
+
         if (obraservicecreate != null) {
             obraservicecreate.cancel();
         }
+
         dismissDialogIndeterminate();
     }
 
@@ -312,7 +241,64 @@ public class ObrasFragment extends BaseFragments {
         recyclerObraAdapter.notifyDataSetChanged();
     }
 
-    private void processCreateObra(final String nombreobra) {
+
+    void apigetallobras() {
+        obraServiceAPI.getAllActive(new CallBackProcessObraApi() {
+            @Override
+            public void success(RealmList<Obra> obraAPI) {
+
+                listobrasAPIempty = (obraAPI.size() == 0) ? true : false;
+                final RealmResults<Obra> obrasDB = realm.where(Obra.class).findAll();
+                listobrasDBempty = (obrasDB.size() == 0) ? true : false;
+
+                if (listobrasAPIempty && listobrasDBempty) {
+                    visibleViewContent("empty");
+                } else if (listobrasAPIempty && !listobrasDBempty) {
+                    visibleViewContent("recycler");
+                    setAddAdapter(obrasDB);
+                } else if (!listobrasAPIempty && listobrasDBempty) {
+                    visibleViewContent("recycler");
+                    saveIntDataBase(obraAPI, true);
+                } else if (!listobrasAPIempty && !listobrasDBempty) {
+                    visibleViewContent("recycler");
+                    saveIntDataBase(obraAPI, true);
+                }
+
+            }
+
+            @Override
+            public void fail() {
+                interfaceObras.showSnackBar("Sin Conexion", "info");
+                final RealmResults<Obra> obrasDB = realm.where(Obra.class).findAll();
+                if (obrasDB.size() == 0) {
+                    visibleViewContent("empty");
+                } else {
+                    visibleViewContent("recycler");
+                    setAddAdapter(obrasDB);
+                }
+            }
+        });
+    }
+
+    void apicreateaobra(String nombre) {
+        int id = 0;
+        int idlocal = getMaxIdObra();
+        Date createdAtLocalDB = getDateTime();
+        obraServiceAPI.create(id, idlocal, nombre, createdAtLocalDB, new CallBackProcessObraApi() {
+            @Override
+            public void success(RealmList<Obra> obraAPI) {
+                final RealmList<Obra> obras = obraAPI;
+                saveIntDataBase(obras, false);
+                interfaceObras.showSnackBar("Sincronizado", "success");
+            }
+
+            @Override
+            public void fail() {
+                Toast.makeText(getActivity(), "FAIL", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+//    private void processCreateObra(final String nombreobra) {
 
 //        dismissDialogIndeterminate();
 //        openDialogIndeterminate("Enviando Obra al A.P.I");
@@ -378,7 +364,7 @@ public class ObrasFragment extends BaseFragments {
 //
 //            }
 //        });
-    }
+//    }
 
     private void processUpdateObra(Integer id, Integer idlocal, final String nombreobra) {
 //        dismissDialog();
@@ -511,7 +497,6 @@ public class ObrasFragment extends BaseFragments {
             int sync = obraslist.get(i).sync;
             int iduser = obraslist.get(i).iduser;
 
-
             if (id == 0) {
                 obraslist.get(i).idlocal = nextId;
                 nextId++;
@@ -519,7 +504,6 @@ public class ObrasFragment extends BaseFragments {
                 obraslist.get(i).idlocal = nextId;
                 nextId++;
             }
-
 
         }
 
@@ -531,16 +515,15 @@ public class ObrasFragment extends BaseFragments {
         }, new Realm.Transaction.OnSuccess() {
             @Override
             public void onSuccess() {
-                Toast.makeText(getActivity(), "saveIntDataBase onSuccess", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getActivity(), "saveIntDataBase onSuccess", Toast.LENGTH_SHORT).show();
                 checkObras();
             }
         }, new Realm.Transaction.OnError() {
             @Override
             public void onError(Throwable error) {
-                Toast.makeText(getActivity(), "saveIntDataBase onError", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getActivity(), "saveIntDataBase onError", Toast.LENGTH_SHORT).show();
             }
         });
-//            }
 
 
     }
@@ -580,7 +563,7 @@ public class ObrasFragment extends BaseFragments {
                             edt_nombre_obra.setText("");
                             materialDialogAdd.dismiss();
 
-                            processCreateObra(nombreobra);
+                            apicreateaobra(nombreobra);
 
                         }
                     }).onNegative(new MaterialDialog.SingleButtonCallback() {
@@ -599,8 +582,6 @@ public class ObrasFragment extends BaseFragments {
     public void openDialogEdit(Integer _id, Integer _idlocal, String _name) {
         final Integer id = _id;
         final Integer idlocal = _idlocal;
-
-
         if (materialDialogEdit == null) {
             materialDialogEdit = new MaterialDialog.Builder(getActivity()).autoDismiss(false)
                     .title("Nueva Obra")
@@ -631,7 +612,19 @@ public class ObrasFragment extends BaseFragments {
         }
     }
 
-//    public void openDialog(String msg) {
+    @Override
+    protected void initUI() {
+        super.initUI();
+        progressCircularText = (ProgressCircularText) view.findViewById(R.id.pgrs_obra);
+        recycler_obras = (RecyclerView) view.findViewById(R.id.recyclerview_obras);
+        txt_vacio = (TextView) view.findViewById(R.id.txt_vacio);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+        layoutManager.setAutoMeasureEnabled(false);
+        recycler_obras.setLayoutManager(layoutManager);
+        visibleViewContent(null);
+    }
+
+    //    public void openDialog(String msg) {
 //        if (materialDialog == null) {
 //            materialDialog = new MaterialDialog.Builder(getActivity())
 //                    .autoDismiss(false)

@@ -8,7 +8,7 @@ import io.realm.RealmList;
  * Created by BALAREZO on 03/09/2017.
  */
 
-public interface ProcessObraApi {
-    void processDataAPI(RealmList<Obra> obra);
-    void processDataLocal();
+public interface CallBackProcessObraApi {
+    void success(RealmList<Obra> obraAPI);
+    void fail();
 }

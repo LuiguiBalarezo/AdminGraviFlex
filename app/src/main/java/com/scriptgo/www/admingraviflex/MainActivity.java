@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity
 
     /* ITEM */
     Intent intentpreferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -127,6 +128,9 @@ public class MainActivity extends AppCompatActivity
 
         switch (iditemnav) {
             case R.id.nav_obras:
+
+                dismissSnackBar();
+
                 fragmentClass = ObrasFragment.class;
                 toolbar.setTitle("Obras");
                 fab.setOnClickListener(new View.OnClickListener() {
@@ -139,6 +143,7 @@ public class MainActivity extends AppCompatActivity
                 transactionFragment(fragment, fragmentClass);
                 break;
             case R.id.nav_egresos:
+                dismissSnackBar();
                 fragmentClass = EgresosFragment.class;
                 toolbar.setTitle("Egresos");
                 fab.setOnClickListener(new View.OnClickListener() {
@@ -150,6 +155,7 @@ public class MainActivity extends AppCompatActivity
                 transactionFragment(fragment, fragmentClass);
                 break;
             case R.id.nav_ingresos:
+                dismissSnackBar();
                 fragmentClass = IngresosFragment.class;
                 toolbar.setTitle("Ingresos");
                 fab.setOnClickListener(new View.OnClickListener() {
@@ -160,7 +166,8 @@ public class MainActivity extends AppCompatActivity
                 });
                 transactionFragment(fragment, fragmentClass);
                 break;
-            case  R.id.nav_valoraciones:
+            case R.id.nav_valoraciones:
+                dismissSnackBar();
                 fragmentClass = ValoracionesFragment.class;
                 toolbar.setTitle("Valoraciones");
                 fab.setOnClickListener(new View.OnClickListener() {
@@ -172,12 +179,15 @@ public class MainActivity extends AppCompatActivity
                 transactionFragment(fragment, fragmentClass);
                 break;
             case R.id.nav_configuracion:
+                dismissSnackBar();
                 Toast.makeText(this, "Configuraciones", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.nav_salir:
+                dismissSnackBar();
                 Toast.makeText(this, "Salir", Toast.LENGTH_SHORT).show();
                 break;
             default:
+                dismissSnackBar();
                 Toast.makeText(this, "NO EXISTE ITEM DE MENU", Toast.LENGTH_SHORT).show();
                 break;
         }
@@ -186,13 +196,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     // INTERFACES
-
     @Override
     public void onFragmentInteraction(Uri uri) {
 
     }
-
-
 
     @Override
     public void showSnackBar(String msg, String type) {
@@ -204,7 +211,7 @@ public class MainActivity extends AppCompatActivity
                 snackbar.dismiss();
             }
         });
-        switch (type){
+        switch (type) {
             case "log":
                 snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.grey_900));
                 break;
@@ -228,7 +235,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    void transactionFragment(Fragment fragment, Class fragmentClass){
+    void transactionFragment(Fragment fragment, Class fragmentClass) {
         try {
             fragment = (Fragment) fragmentClass.newInstance();
         } catch (Exception e) {
@@ -238,7 +245,7 @@ public class MainActivity extends AppCompatActivity
         fragmentManager.beginTransaction().replace(R.id.container_framelayout, fragment, fragment.getClass().getSimpleName()).commit();
     }
 
-    private void startMainActivity(Intent intent, Class ClassActivity){
+    private void startMainActivity(Intent intent, Class ClassActivity) {
         intent = new Intent(this, ClassActivity);
         startActivity(intent);
     }
