@@ -280,7 +280,7 @@ public class ObrasFragment extends BaseFragments {
         });
     }
 
-    void apicreateaobra(String nombre) {
+    void apicreateaobra(final String nombre) {
         int id = 0;
         int idlocal = getMaxIdObra();
         Date createdAtLocalDB = getDateTime();
@@ -295,76 +295,40 @@ public class ObrasFragment extends BaseFragments {
             @Override
             public void fail() {
                 Toast.makeText(getActivity(), "FAIL", Toast.LENGTH_SHORT).show();
+
+                visibleViewContent("progress");
+                dismissDialogIndeterminate();
+                interfaceObras.showSnackBar("Sin Conexion con el A.P.I / Guardado en Local", "info");
+
+                final Obra obra = new Obra();
+                obra.idlocal = getMaxIdObra();
+                obra.name = nombre;
+                obra.createdAt = null;
+                obra.updatedAt = null;
+                obra.createdAtLocalDB = getDateTime();
+                obra.status = 1;
+                obra.sync = 0;
+                obra.iduser = iduser;
+
+                realm.executeTransactionAsync(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+                        realm.copyToRealmOrUpdate(obra);
+                    }
+                }, new Realm.Transaction.OnSuccess() {
+                    @Override
+                    public void onSuccess() {
+                        checkObras();
+                    }
+                }, new Realm.Transaction.OnError() {
+                    @Override
+                    public void onError(Throwable error) {
+                        interfaceObras.showSnackBar("Realm : erronea al Agregar Obra!", "error");
+                    }
+                });
             }
         });
     }
-//    private void processCreateObra(final String nombreobra) {
-
-//        dismissDialogIndeterminate();
-//        openDialogIndeterminate("Enviando Obra al A.P.I");
-//
-//        Integer id = null;
-//        Integer idlocal = getMaxIdObra();
-//        Date createdAtLocalDB = getDateTime();
-//
-////        iduser = getIdUser();
-//
-//        obraservicecreate = ApiAdapter.getApiService().processCreateObra(id, idlocal, nombreobra, createdAtLocalDB, iduser);
-//        obraservicecreate.enqueue(new Callback<ObrasResponse>() {
-//            @Override
-//            public void onResponse(Call<ObrasResponse> call, Response<ObrasResponse> response) {
-//                if (response.isSuccessful()) {
-//                    obraResponse = response.body();
-//                    if (obraResponse.error == 1) {
-//                        interfaceObras.showSnackBar("Error : Crear Obras", "error");
-//                    } else {
-//                        final RealmList<Obra> obras = obraResponse.obra;
-//                        saveIntDataBase(obras, false);
-//                        dismissDialogIndeterminate();
-//                        interfaceObras.showSnackBar("Sincronizado", "success");
-//                    }
-//                } else {
-//                    interfaceObras.showSnackBar("Respuesta erronea al Agregar Obra!", "error");
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<ObrasResponse> call, Throwable t) {
-//
-//                visibleViewContent("progress");
-//                dismissDialogIndeterminate();
-//                interfaceObras.showSnackBar("Sin Conexion con el A.P.I / Guardado en Local", "info");
-//
-//                final Obra obra = new Obra();
-//                obra.idlocal = getMaxIdObra();
-//                obra.name = nombreobra;
-//                obra.createdAt = null;
-//                obra.updatedAt = null;
-//                obra.createdAtLocalDB = getDateTime();
-//                obra.status = 1;
-//                obra.sync = 0;
-//                obra.iduser = iduser;
-//
-//                realm.executeTransactionAsync(new Realm.Transaction() {
-//                    @Override
-//                    public void execute(Realm realm) {
-//                        realm.copyToRealmOrUpdate(obra);
-//                    }
-//                }, new Realm.Transaction.OnSuccess() {
-//                    @Override
-//                    public void onSuccess() {
-//                        checkObras();
-//                    }
-//                }, new Realm.Transaction.OnError() {
-//                    @Override
-//                    public void onError(Throwable error) {
-//                        interfaceObras.showSnackBar("Realm : erronea al Agregar Obra!", "error");
-//                    }
-//                });
-//
-//            }
-//        });
-//    }
 
     private void processUpdateObra(Integer id, Integer idlocal, final String nombreobra) {
 //        dismissDialog();
