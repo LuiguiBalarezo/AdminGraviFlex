@@ -42,16 +42,14 @@ public class ProgressCircularText extends LinearLayout {
         initializeViews(context);
     }
 
-
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-
         lnl_progresscircular = (LinearLayout) findViewById(R.id.lnl_progresscircular);
         text_load = (TextView) findViewById(R.id.text_load);
-
-        text_load.setText(txt_load);
-
+        if(txt_load != null || txt_load != ""){
+            text_load.setText(txt_load);
+        }
     }
 
     void initattr(Context context, AttributeSet attrs) {
@@ -61,11 +59,13 @@ public class ProgressCircularText extends LinearLayout {
         typedArray.recycle();
     }
 
-    private void initializeViews(Context context) {
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.compound_progresscirculartext, this);
+    public void setTextLoad(String t){
+        text_load.setText(t);
+    }
 
+    private void initializeViews(Context context) {
+        LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        inflater.inflate(R.layout.compound_progresscirculartext, this);
     }
 
 

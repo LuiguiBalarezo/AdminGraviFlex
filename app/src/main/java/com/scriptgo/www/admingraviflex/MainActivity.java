@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void onClick(View v) {
                         ObrasFragment obrasFragment = (ObrasFragment) getSupportFragmentManager().findFragmentByTag(ObrasFragment.class.getSimpleName());
-                        obrasFragment.openDialogAdd();
+                        obrasFragment.initOpenDialogAdd();
                     }
                 });
                 transactionFragment(fragment, fragmentClass);

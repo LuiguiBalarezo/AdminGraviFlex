@@ -100,7 +100,7 @@ public class ObrasFragment extends BaseFragments {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        obraServiceAPI = new ObraServiceAPI(iduser);
+        initServices();
     }
 
     @Override
@@ -155,10 +155,9 @@ public class ObrasFragment extends BaseFragments {
     public void onResume() {
         Log.d(TAG, "onResume");
         super.onResume();
+
         apigetallobras();
         interfaceObras.dismissSnackBar();
-
-
     }
 
     @Override
@@ -186,7 +185,7 @@ public class ObrasFragment extends BaseFragments {
         dismissDialogIndeterminate();
     }
 
-    // METHOD
+    /* METHOD */
     private void checkObras() {
         RealmResults<Obra> obrasdb = realm.where(Obra.class).findAllAsync();
         obrasdb.addChangeListener(new RealmChangeListener<RealmResults<Obra>>() {
@@ -201,7 +200,6 @@ public class ObrasFragment extends BaseFragments {
             }
         });
     }
-
 
     private void showRecyclerHiddeTextEmpty() {
         recycler_obras.setVisibility(View.VISIBLE);
@@ -243,6 +241,10 @@ public class ObrasFragment extends BaseFragments {
 
 
     void apigetallobras() {
+
+        visibleViewContent("progress");
+        progressCircularText.setTextLoad("Cargando...");
+
         obraServiceAPI.getAllActive(new CallBackProcessObraApi() {
             @Override
             public void success(RealmList<Obra> obraAPI) {
@@ -488,92 +490,37 @@ public class ObrasFragment extends BaseFragments {
 //                Toast.makeText(getActivity(), "saveIntDataBase onError", Toast.LENGTH_SHORT).show();
             }
         });
-
-
     }
 
-    public void openDialogIndeterminate(String textcontent) {
-        if (materialDialogIndeterminate == null) {
-            materialDialogIndeterminate = new MaterialDialog.Builder(getActivity()).autoDismiss(false)
-                    .content(textcontent)
-                    .cancelable(false)
-                    .progress(true, 0)
-                    .progressIndeterminateStyle(true)
-                    .build();
-            materialDialogIndeterminate.show();
-        } else {
-            materialDialogIndeterminate.show();
-        }
+    public void initOpenDialogAdd() {
+        openDialogAdd("Nueva Obra", R.layout.dialog_obra, "Crear", "Salir", singleButtonCallback, singleButtonCallback);
     }
 
-    public void dismissDialogIndeterminate() {
-        if (materialDialogIndeterminate != null) {
-            materialDialogIndeterminate.dismiss();
+
+
+    MaterialDialog.SingleButtonCallback singleButtonCallback = new MaterialDialog.SingleButtonCallback() {
+        @Override
+        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+            switch (which.name()) {
+                case "POSITIVE":
+                    positiveadd(dialog);
+                    break;
+                case "NEGATIVE":
+                    negativeadd();
+                    break;
+            }
         }
+    };
+
+    void positiveadd(MaterialDialog dialog) {
+        edt_nombre_obra = (EditText) dialog.findViewById(R.id.edt_nombre_obra);
+        final String nombreobra = edt_nombre_obra.getText().toString();
+        edt_nombre_obra.setText(null);
+        dismissDialogAdd();
     }
 
-    public void openDialogAdd() {
-        if (materialDialogAdd == null) {
-            materialDialogAdd = new MaterialDialog.Builder(getActivity()).autoDismiss(false)
-                    .title("Nueva Obra")
-                    .customView(R.layout.dialog_obra, true)
-                    .positiveText("Crear")
-                    .negativeText("Salir")
-                    .onPositive(new MaterialDialog.SingleButtonCallback() {
-                        @Override
-                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                            edt_nombre_obra = (EditText) dialog.findViewById(R.id.edt_nombre_obra);
-                            final String nombreobra = edt_nombre_obra.getText().toString();
-                            edt_nombre_obra.setText("");
-                            materialDialogAdd.dismiss();
-
-                            apicreateaobra(nombreobra);
-
-                        }
-                    }).onNegative(new MaterialDialog.SingleButtonCallback() {
-                        @Override
-                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                            materialDialogAdd.dismiss();
-                        }
-                    })
-                    .build();
-            materialDialogAdd.show();
-        } else {
-            materialDialogAdd.show();
-        }
-    }
-
-    public void openDialogEdit(Integer _id, Integer _idlocal, String _name) {
-        final Integer id = _id;
-        final Integer idlocal = _idlocal;
-        if (materialDialogEdit == null) {
-            materialDialogEdit = new MaterialDialog.Builder(getActivity()).autoDismiss(false)
-                    .title("Nueva Obra")
-                    .customView(R.layout.dialog_obra, true)
-                    .positiveText("Editar")
-                    .negativeText("Salir")
-                    .onPositive(new MaterialDialog.SingleButtonCallback() {
-                        @Override
-                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                            final String nombreobra = edt_nombre_obra.getText().toString();
-                            edt_nombre_obra.setText("");
-                            materialDialogEdit.dismiss();
-                            processUpdateObra(id, idlocal, nombreobra);
-                        }
-                    }).onNegative(new MaterialDialog.SingleButtonCallback() {
-                        @Override
-                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                            materialDialogEdit.dismiss();
-                        }
-                    })
-                    .build();
-            edt_nombre_obra = (EditText) materialDialogEdit.findViewById(R.id.edt_nombre_obra);
-            edt_nombre_obra.setText(id + " " + idlocal + " " + _name);
-            materialDialogEdit.show();
-        } else {
-            edt_nombre_obra.setText(_name);
-            materialDialogEdit.show();
-        }
+    void negativeadd() {
+        dismissDialogAdd();
     }
 
     @Override
@@ -588,24 +535,10 @@ public class ObrasFragment extends BaseFragments {
         visibleViewContent(null);
     }
 
-    //    public void openDialog(String msg) {
-//        if (materialDialog == null) {
-//            materialDialog = new MaterialDialog.Builder(getActivity())
-//                    .autoDismiss(false)
-//                    .cancelable(false)
-//                    .title(null)
-//                    .content(msg)
-//                    .progress(true, 0)
-//                    .progressIndeterminateStyle(true).build();
-//            materialDialog.show();
-//        }
-//    }
-//
-//    public void dismissDialog() {
-//        if (materialDialog != null) {
-//            materialDialog.dismiss();
-//        }
-//    }
-
+    @Override
+    protected void initServices() {
+        super.initServices();
+        obraServiceAPI = new ObraServiceAPI(iduser);
+    }
 
 }
