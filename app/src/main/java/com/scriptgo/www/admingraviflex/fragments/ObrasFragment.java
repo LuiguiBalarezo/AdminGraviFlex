@@ -17,7 +17,6 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.scriptgo.www.admingraviflex.R;
 import com.scriptgo.www.admingraviflex.adapters.RecyclerObraAdapter;
-import com.scriptgo.www.admingraviflex.apiadapter.ApiAdapter;
 import com.scriptgo.www.admingraviflex.bases.BaseFragments;
 import com.scriptgo.www.admingraviflex.compound.ProgressCircularText;
 import com.scriptgo.www.admingraviflex.interfaces.CallBackProcessObraApi;
@@ -36,8 +35,6 @@ import io.realm.RealmChangeListener;
 import io.realm.RealmList;
 import io.realm.RealmResults;
 import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 
 public class ObrasFragment extends BaseFragments {
@@ -217,12 +214,12 @@ public class ObrasFragment extends BaseFragments {
         recyclerObraAdapter = new RecyclerObraAdapter(getActivity(), obrasList, new ObrasClickRecyclerView() {
             @Override
             public void onClickSync(View view, int position) {
-                Integer id = obras.get(position).id;
+                int id = obras.get(position).id;
                 int idlocal = obras.get(position).idlocal;
                 String nombre = obras.get(position).name;
                 Date datecreatelocal = obras.get(position).createdAtLocalDB;
-                int iduser = obras.get(position).iduser;
-                processSyncObra(id, idlocal, nombre, datecreatelocal, iduser);
+                Toast.makeText(getActivity(), id + " " + idlocal + " " + nombre, Toast.LENGTH_SHORT).show();
+                apisync(id, idlocal, nombre, datecreatelocal);
             }
 
             @Override
@@ -247,7 +244,7 @@ public class ObrasFragment extends BaseFragments {
 
         obraServiceAPI.getAllActive(new CallBackProcessObraApi() {
             @Override
-            public void success(RealmList<Obra> obraAPI) {
+            public void connect(RealmList<Obra> obraAPI) {
 
                 listobrasAPIempty = (obraAPI.size() == 0) ? true : false;
                 final RealmResults<Obra> obrasDB = realm.where(Obra.class).findAll();
@@ -269,7 +266,7 @@ public class ObrasFragment extends BaseFragments {
             }
 
             @Override
-            public void fail() {
+            public void disconnect() {
                 interfaceObras.showSnackBar("Sin Conexion", "info");
                 final RealmResults<Obra> obrasDB = realm.where(Obra.class).findAll();
                 if (obrasDB.size() == 0) {
@@ -288,19 +285,17 @@ public class ObrasFragment extends BaseFragments {
         Date createdAtLocalDB = getDateTime();
         obraServiceAPI.create(id, idlocal, nombre, createdAtLocalDB, new CallBackProcessObraApi() {
             @Override
-            public void success(RealmList<Obra> obraAPI) {
+            public void connect(RealmList<Obra> obraAPI) {
                 final RealmList<Obra> obras = obraAPI;
                 saveIntDataBase(obras, false);
                 interfaceObras.showSnackBar("Sincronizado", "success");
             }
 
             @Override
-            public void fail() {
-                Toast.makeText(getActivity(), "FAIL", Toast.LENGTH_SHORT).show();
-
+            public void disconnect() {
                 visibleViewContent("progress");
                 dismissDialogIndeterminate();
-                interfaceObras.showSnackBar("Sin Conexion con el A.P.I / Guardado en Local", "info");
+                interfaceObras.showSnackBar("Sin Conexion / Guardado en Local", "info");
 
                 final Obra obra = new Obra();
                 obra.idlocal = getMaxIdObra();
@@ -320,11 +315,13 @@ public class ObrasFragment extends BaseFragments {
                 }, new Realm.Transaction.OnSuccess() {
                     @Override
                     public void onSuccess() {
+                        visibleViewContent("recycler");
                         checkObras();
                     }
                 }, new Realm.Transaction.OnError() {
                     @Override
                     public void onError(Throwable error) {
+                        visibleViewContent(null);
                         interfaceObras.showSnackBar("Realm : erronea al Agregar Obra!", "error");
                     }
                 });
@@ -332,93 +329,25 @@ public class ObrasFragment extends BaseFragments {
         });
     }
 
-    private void processUpdateObra(Integer id, Integer idlocal, final String nombreobra) {
-//        dismissDialog();
-//        openDialog("Actualizando");
-//        Date updatedAtLocalDB = getDateTime();
-//        iduser = getIdUser();
-//
-//        Call<ObrasResponse> obra = ApiAdapter.getApiService().processUpdateObra(id, nombreobra, updatedAtLocalDB, iduser);
-//        obra.enqueue(new Callback<ObrasResponse>() {
-//            @Override
-//            public void onResponse(Call<ObrasResponse> call, Response<ObrasResponse> response) {
-//                if (response.isSuccessful()) {
-//                    ObrasResponse obraResponse = response.body();
-//                    if (obraResponse.error == 1) {
-//                        Toast.makeText(getActivity(), "ERROR", Toast.LENGTH_SHORT).show();
-//                    } else {
-//                        final RealmList<Obra> obras = obraResponse.obra;
-//                        saveIntDataBase(obras, false);
-//                        interfaceObras.showSnackBar("Sincronizado", "success");
-//                    }
-//                } else {
-//                    interfaceObras.showSnackBar("Respuesta erronea al Agregar Obra!", "error");
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<ObrasResponse> call, Throwable t) {
-//
-//                interfaceObras.showSnackBar("Sin Conexion con el A.P.I / Guardado en Local", "info");
-//
-////                final Obra obra = new Obra();
-////                obra.idlocal = getMaxIdObra();
-////                obra.name = nombreobra;
-////                obra.createdAt = null;
-////                obra.updatedAt = null;
-////                obra.createdAtLocalDB = getDateTime();
-////                obra.iduser = iduser;
-////
-////                realm.executeTransactionAsync(new Realm.Transaction() {
-////                    @Override
-////                    public void execute(Realm realm) {
-////                        realm.copyToRealmOrUpdate(obra);
-////                    }
-////                }, new Realm.Transaction.OnSuccess() {
-////                    @Override
-////                    public void onSuccess() {
-////                        checkObras();
-////                    }
-////                }, new Realm.Transaction.OnError() {
-////                    @Override
-////                    public void onError(Throwable error) {
-////                        Toast.makeText(getActivity(), "processAddObra onError", Toast.LENGTH_SHORT).show();
-////                    }
-////                });
-//
-//            }
-//        });
-    }
-
-    private void processSyncObra(Integer id, int idlocal, String nombre, Date createloacl, int iduser) {
+    void apisync(int id, int idlocal, String nombre, Date datecreatelocal) {
         openDialogIndeterminate("Sincronizando");
-        Call<ObrasResponse> obra = ApiAdapter.getApiService().processSyncObra(id, idlocal, nombre, createloacl, null, iduser);
-        obra.enqueue(new Callback<ObrasResponse>() {
+        obraServiceAPI.sync(id, idlocal, nombre, datecreatelocal, new CallBackProcessObraApi() {
             @Override
-            public void onResponse(Call<ObrasResponse> call, Response<ObrasResponse> response) {
-                if (response.isSuccessful()) {
-                    dismissDialogIndeterminate();
-                    ObrasResponse obraResponse = response.body();
-
-                    if (obraResponse.error == 1) {
-                        Toast.makeText(getActivity(), "ERROR", Toast.LENGTH_SHORT).show();
-                    } else {
-                        final RealmList<Obra> obras = obraResponse.obra;
-                        saveIntDataBase(obras, false);
-                        interfaceObras.showSnackBar("Sincronizado", "success");
-                    }
-                } else {
-                    interfaceObras.showSnackBar("Respuesta erronea al Sincronizar Obra!", "error");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ObrasResponse> call, Throwable t) {
+            public void connect(RealmList<Obra> obraAPI) {
                 dismissDialogIndeterminate();
-                interfaceObras.showSnackBar("Sin Conexion con el A.P.I / No sincronizado", "info");
+                saveIntDataBase(obraAPI, false);
+
+                interfaceObras.showSnackBar("Sincronizado", "success");
+            }
+            @Override
+            public void disconnect() {
+                dismissDialogIndeterminate();
+                visibleViewContent("recycler");
+                interfaceObras.showSnackBar("Sin Conexion / No sincronizado", "info");
             }
         });
     }
+
 
     private int getMaxIdObra() {
         Number currentIdNum = realm.where(Obra.class).max("idlocal");
@@ -497,7 +426,6 @@ public class ObrasFragment extends BaseFragments {
     }
 
 
-
     MaterialDialog.SingleButtonCallback singleButtonCallback = new MaterialDialog.SingleButtonCallback() {
         @Override
         public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
@@ -514,8 +442,9 @@ public class ObrasFragment extends BaseFragments {
 
     void positiveadd(MaterialDialog dialog) {
         edt_nombre_obra = (EditText) dialog.findViewById(R.id.edt_nombre_obra);
-        final String nombreobra = edt_nombre_obra.getText().toString();
+        String nombreobra = edt_nombre_obra.getText().toString();
         edt_nombre_obra.setText(null);
+        apicreateaobra(nombreobra);
         dismissDialogAdd();
     }
 

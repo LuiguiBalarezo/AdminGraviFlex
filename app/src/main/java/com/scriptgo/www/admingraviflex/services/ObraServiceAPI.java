@@ -25,8 +25,7 @@ public class ObraServiceAPI {
     private String TAG = this.getClass().getSimpleName();
 
     /* SERVICES */
-    private Call<ObrasResponse> s_getallactive = null;
-    private Call<ObrasResponse> s_create = null;
+    private Call<ObrasResponse> s_getallactive = null, s_create = null, s_sync = null;
     /* CALLBACK */
     private CallBackProcessObraApi callBackProcessObraApi = null;
     /* MODELS */
@@ -49,20 +48,21 @@ public class ObraServiceAPI {
                     if (r_obras.error == 1) {
                         Log.d(TAG, "ERROR + MENSAJE");
                     } else {
-                        callBackProcessObraApi.success(r_obras.obra);
+                        callBackProcessObraApi.connect(r_obras.obra);
                     }
                 } else {
                     Log.d(TAG, "ERROR SERVICES OBRASRECYCLER");
                 }
             }
+
             @Override
             public void onFailure(Call<ObrasResponse> call, Throwable t) {
-                callBackProcessObraApi.fail();
+                callBackProcessObraApi.disconnect();
             }
         });
     }
 
-    public void create(int idserver, int idlocal, String nombre, Date datecreate, final CallBackProcessObraApi callback){
+    public void create(int idserver, int idlocal, String nombre, Date datecreate, final CallBackProcessObraApi callback) {
         callBackProcessObraApi = callback;
         s_create = ApiAdapter.getApiService().processCreateObra(idserver, idlocal, nombre, datecreate, iduser);
         s_create.enqueue(new Callback<ObrasResponse>() {
@@ -73,7 +73,32 @@ public class ObraServiceAPI {
                     if (r_obras.error == 1) {
                         Log.d(TAG, "ERROR + MENSAJE");
                     } else {
-                        callBackProcessObraApi.success(r_obras.obra);
+                        callBackProcessObraApi.connect(r_obras.obra);
+                    }
+                } else {
+                    Log.d(TAG, "ERROR SERVICES OBRASRECYCLER");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ObrasResponse> call, Throwable t) {
+                callBackProcessObraApi.disconnect();
+            }
+        });
+    }
+
+    public void sync(int id, int idlocal, String nombre, Date createloacl, final CallBackProcessObraApi callback) {
+        callBackProcessObraApi = callback;
+        s_sync = ApiAdapter.getApiService().processSyncObra(id, idlocal, nombre, createloacl, null, iduser);
+        s_sync.enqueue(new Callback<ObrasResponse>() {
+            @Override
+            public void onResponse(Call<ObrasResponse> call, Response<ObrasResponse> response) {
+                if (response.isSuccessful()) {
+                    r_obras = response.body();
+                    if (r_obras.error == 1) {
+                        Log.d(TAG, "ERROR + MENSAJE");
+                    } else {
+                        callBackProcessObraApi.connect(r_obras.obra);
                     }
                 } else {
                     Log.d(TAG, "ERROR SERVICES OBRASRECYCLER");
@@ -81,13 +106,13 @@ public class ObraServiceAPI {
             }
             @Override
             public void onFailure(Call<ObrasResponse> call, Throwable t) {
-                callBackProcessObraApi.fail();
+                callBackProcessObraApi.disconnect();
             }
         });
     }
 
-    public void cancelServices(){
-        if(s_getallactive != null){
+    public void cancelServices() {
+        if (s_getallactive != null) {
             s_getallactive.cancel();
         }
     }

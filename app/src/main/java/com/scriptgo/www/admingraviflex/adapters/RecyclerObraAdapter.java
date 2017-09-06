@@ -18,14 +18,14 @@ import io.realm.RealmList;
  * Created by BALAREZO on 11/08/2017.
  */
 
-public class RecyclerObraAdapter extends  RecyclerView.Adapter<RecyclerObraAdapter.ObraViewHolder>{
+public class RecyclerObraAdapter extends RecyclerView.Adapter<RecyclerObraAdapter.ObraViewHolder> {
 
     private RealmList<Obra> obras;
     private Context context;
 
     ObrasClickRecyclerView listener;
 
-    public RecyclerObraAdapter(Context ctx, RealmList<Obra> obras , ObrasClickRecyclerView listener) {
+    public RecyclerObraAdapter(Context ctx, RealmList<Obra> obras, ObrasClickRecyclerView listener) {
         this.context = ctx;
         this.obras = obras;
         this.listener = listener;
@@ -36,7 +36,7 @@ public class RecyclerObraAdapter extends  RecyclerView.Adapter<RecyclerObraAdapt
 
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.obras_item_recycler, parent, false);
 
-        final ObraViewHolder obraViewHolder = new ObraViewHolder(v);
+        final ObraViewHolder obraViewHolder =new ObraViewHolder(v);
 
         v.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,12 +53,6 @@ public class RecyclerObraAdapter extends  RecyclerView.Adapter<RecyclerObraAdapt
             }
         });
 
-        obraViewHolder.img_iconsync.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onClickSync(v,  obraViewHolder.getAdapterPosition());
-            }
-        });
 
         return obraViewHolder;
 
@@ -66,15 +60,21 @@ public class RecyclerObraAdapter extends  RecyclerView.Adapter<RecyclerObraAdapt
 
 
     @Override
-    public void onBindViewHolder(ObraViewHolder holder, int position) {
-        Obra obra = obras.get(position);
+    public void onBindViewHolder(ObraViewHolder holder, final int position) {
+        final Obra obra = obras.get(position);
         holder.txt_nombre.setText(obra.name);
 
-        if(obra.id != 0){
+        if (obra.id != 0) {
             holder.img_iconsync.setImageResource(R.drawable.ic_cloud_done_black_24dp);
             holder.img_iconsync.setOnClickListener(null);
-        }else{
+        } else {
             holder.img_iconsync.setImageResource(R.drawable.ic_access_time_black_24dp);
+            holder.img_iconsync.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    listener.onClickSync(v, position);
+                }
+            });
         }
 
     }
@@ -84,15 +84,15 @@ public class RecyclerObraAdapter extends  RecyclerView.Adapter<RecyclerObraAdapt
         return obras.size();
     }
 
-    public class ObraViewHolder extends RecyclerView.ViewHolder{
+    public class ObraViewHolder extends RecyclerView.ViewHolder {
 
         private TextView txt_nombre;
         private ImageView img_iconsync;
 
         public ObraViewHolder(View itemView) {
             super(itemView);
-            txt_nombre = (TextView)itemView.findViewById(R.id.txt_nombre_obra);
-            img_iconsync = (ImageView)itemView.findViewById(R.id.img_iconsync);
+            txt_nombre = (TextView) itemView.findViewById(R.id.txt_nombre_obra);
+            img_iconsync = (ImageView) itemView.findViewById(R.id.img_iconsync);
         }
 
     }

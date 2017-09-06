@@ -9,6 +9,6 @@ import io.realm.RealmList;
  */
 
 public interface CallBackProcessObraApi {
-    void success(RealmList<Obra> obraAPI);
-    void fail();
+    void connect(RealmList<Obra> obraAPI);
+    void disconnect();
 }
