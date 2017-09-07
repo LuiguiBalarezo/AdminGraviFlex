@@ -25,7 +25,7 @@ public class ObraServiceAPI {
     private String TAG = this.getClass().getSimpleName();
 
     /* SERVICES */
-    private Call<ObrasResponse> s_getallactive = null, s_create = null, s_sync = null;
+    private Call<ObrasResponse> s_getallactive = null, s_create = null, s_sync = null, s_getallactive_id_name = null;
     /* CALLBACK */
     private CallBackProcessObraApi callBackProcessObraApi = null;
     /* MODELS */
@@ -41,6 +41,32 @@ public class ObraServiceAPI {
         callBackProcessObraApi = callback;
         s_getallactive = ApiAdapter.getApiService().processGetAllObra(iduser);
         s_getallactive.enqueue(new Callback<ObrasResponse>() {
+            @Override
+            public void onResponse(Call<ObrasResponse> call, Response<ObrasResponse> response) {
+                if (response.isSuccessful()) {
+                    r_obras = response.body();
+                    if (r_obras.error == 1) {
+                        Log.d(TAG, "ERROR + MENSAJE");
+                    } else {
+                        callBackProcessObraApi.connect(r_obras.obra);
+                    }
+                } else {
+                    Log.d(TAG, "ERROR SERVICES OBRASRECYCLER");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ObrasResponse> call, Throwable t) {
+                callBackProcessObraApi.disconnect();
+            }
+        });
+    }
+
+
+    public void getallactive_id_name(final CallBackProcessObraApi callback){
+        callBackProcessObraApi = callback;
+        s_getallactive_id_name = ApiAdapter.getApiService().processGetAllObraActive_ID_NAME(iduser);
+        s_getallactive_id_name.enqueue(new Callback<ObrasResponse>() {
             @Override
             public void onResponse(Call<ObrasResponse> call, Response<ObrasResponse> response) {
                 if (response.isSuccessful()) {

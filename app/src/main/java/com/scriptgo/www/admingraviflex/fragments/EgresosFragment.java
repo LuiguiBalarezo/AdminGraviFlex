@@ -1,15 +1,14 @@
 package com.scriptgo.www.admingraviflex.fragments;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
+import android.support.v7.widget.AppCompatSpinner;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -17,39 +16,28 @@ import com.scriptgo.www.admingraviflex.MainActivity;
 import com.scriptgo.www.admingraviflex.R;
 import com.scriptgo.www.admingraviflex.adapters.SpinnerObraAdapter;
 import com.scriptgo.www.admingraviflex.bases.BaseFragments;
+import com.scriptgo.www.admingraviflex.interfaces.CallBackProcessObraApi;
+import com.scriptgo.www.admingraviflex.models.Obra;
 import com.scriptgo.www.admingraviflex.responses.ObrasResponse;
+import com.scriptgo.www.admingraviflex.services.ObraServiceAPI;
 
+import io.realm.RealmList;
+import io.realm.RealmResults;
 import retrofit2.Call;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link EgresosFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link EgresosFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class EgresosFragment extends BaseFragments {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-//    /* UI */
-//    View view;
-    Spinner spinner = null;
+    //    /* UI */
+    AppCompatSpinner spinner = null;
 
-    /* VARS */
-//    int iduser = getIdUser();
 
     // RESPONSE
     Call<ObrasResponse> obraservicegetlistactive_id_name = null;
 
-//    REALM
-//    Realm realm = null;
-//    RealmAsyncTask realmAsyncTask = null;
-//    RealmChangeListener realmChangeListenerObras = null;
-//    RealmList<Obra> obrasList = null;
 
     // ADAPTER
     private SpinnerObraAdapter recyclerObraAdapter;
@@ -57,12 +45,14 @@ public class EgresosFragment extends BaseFragments {
     //RESPPONSE
     ObrasResponse obraResponse = null;
 
+    /* SERVICES */
+    ObraServiceAPI obraServiceAPI = null;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
-    private OnFragmentInteractionListener mListener;
+//    private OnFragmentInteractionListener mListener;
 
     public EgresosFragment() {
         // Required empty public constructor
@@ -93,9 +83,7 @@ public class EgresosFragment extends BaseFragments {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
-//        realm = Realm.getDefaultInstance();
-
+        initServices();
     }
 
     @Override
@@ -103,67 +91,74 @@ public class EgresosFragment extends BaseFragments {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_egresos, container, false);
-        spinner = (Spinner)view.findViewById(R.id.spn_obras);
+        spinner = (AppCompatSpinner) view.findViewById(R.id.spn_obras);
         ArrayAdapter<CharSequence> arrayAdapter = ArrayAdapter.createFromResource(getActivity(), R.array.obras_array, android.R.layout.simple_spinner_item);
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(arrayAdapter);
         return view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
+//        if (context instanceof OnFragmentInteractionListener) {
+//
+//        } else {
+//            throw new RuntimeException(context.toString()
+//                    + " must implement OnFragmentInteractionListener");
+//        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
+
     }
 
-    /* METHOD */
-//    void processGetObras(){
-//
-//        obraservicegetlistactive_id_name = ApiAdapter.getApiService().processGetAllObraActive_ID_NAME(iduser);
-//        obraservicegetlistactive_id_name.enqueue(new Callback<ObrasResponse>() {
-//            @Override
-//            public void onResponse(Call<ObrasResponse> call, Response<ObrasResponse> response) {
-//                if (response.isSuccessful()) {
-//                    obraResponse = response.body();
-//                    if (obraResponse.error == 1) {
-//
-//                    }else{
-//                    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        apigetallobras_id_name();
+    }
+
+    void apigetallobras_id_name(){
+        obraServiceAPI.getAllActive(new CallBackProcessObraApi() {
+            @Override
+            public void connect(RealmList<Obra> obraAPI) {
+
+                listobrasAPIempty = (obraAPI.size() == 0) ? true : false;
+                final RealmResults<Obra> obrasDB = realm.where(Obra.class).findAll();
+                listobrasDBempty = (obrasDB.size() == 0) ? true : false;
+
+                Toast.makeText(getActivity(), "connect", Toast.LENGTH_SHORT).show();
+
+//                if (listobrasAPIempty && listobrasDBempty) {
+//                    visibleViewContent("empty");
+//                } else if (listobrasAPIempty && !listobrasDBempty) {
+//                    visibleViewContent("recycler");
+//                    setAddAdapter(obrasDB);
+//                } else if (!listobrasAPIempty && listobrasDBempty) {
+//                    visibleViewContent("recycler");
+//                    saveIntDataBase(obraAPI, true);
+//                } else if (!listobrasAPIempty && !listobrasDBempty) {
+//                    visibleViewContent("recycler");
+//                    saveIntDataBase(obraAPI, true);
 //                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<ObrasResponse> call, Throwable t) {
-//
-//            }
-//        });
-//    }
 
-//    private Integer getIdUser() {
-//        Usuario usuario = realm.where(Usuario.class).findFirst();
-//        return iduser = usuario.id;
-//    }
+            }
 
+            @Override
+            public void disconnect() {
+                Toast.makeText(getActivity(), "disconnect", Toast.LENGTH_SHORT).show();
+                //final RealmResults<Obra> obrasDB = realm.where(Obra.class).findAll();
+
+            }
+        });
+    }
     // METHOD PUBLICS
-    public void openDialogEgresos(MainActivity context, MaterialDialog materialDialog){
+    public void openDialogEgresos(MainActivity context, MaterialDialog materialDialog) {
         materialDialog = new MaterialDialog.Builder(context).autoDismiss(false)
                 .title("Nuevo Egreso")
                 .customView(R.layout.dialog_egresos, true)
@@ -184,18 +179,10 @@ public class EgresosFragment extends BaseFragments {
         materialDialog.show();
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+    @Override
+    protected void initServices() {
+        super.initServices();
+        obraServiceAPI = new ObraServiceAPI(iduser);
     }
+
 }

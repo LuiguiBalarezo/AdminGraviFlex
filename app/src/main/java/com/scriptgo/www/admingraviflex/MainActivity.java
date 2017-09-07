@@ -28,7 +28,6 @@ import com.scriptgo.www.admingraviflex.interfaces.ObrasFragmentToActivity;
 
 public class MainActivity extends AppCompatActivity
         implements
-        EgresosFragment.OnFragmentInteractionListener,
         IngresosFragment.OnFragmentInteractionListener,
         ObrasFragmentToActivity,
         ValoracionesFragment.OnFragmentInteractionListener,

@@ -28,6 +28,8 @@ public class BaseFragments extends Fragment {
     /* VARS */
     protected String TAG = this.getClass().getSimpleName();
     protected int iduser = 0;
+    protected boolean listobrasAPIempty = false;
+    protected boolean listobrasDBempty = false;
 
     /* MODELS */
     protected Usuario m_usuario = null;
