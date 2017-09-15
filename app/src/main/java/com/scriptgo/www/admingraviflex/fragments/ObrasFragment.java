@@ -21,7 +21,6 @@ import com.scriptgo.www.admingraviflex.bases.BaseFragments;
 import com.scriptgo.www.admingraviflex.compound.ProgressCircularText;
 import com.scriptgo.www.admingraviflex.interfaces.CallBackProcessObraApi;
 import com.scriptgo.www.admingraviflex.interfaces.ObrasClickRecyclerView;
-import com.scriptgo.www.admingraviflex.interfaces.ObrasFragmentToActivity;
 import com.scriptgo.www.admingraviflex.models.Obra;
 import com.scriptgo.www.admingraviflex.responses.ObrasResponse;
 import com.scriptgo.www.admingraviflex.services.ObraServiceAPI;
@@ -45,8 +44,6 @@ public class ObrasFragment extends BaseFragments {
     private String mParam1;
     private String mParam2;
 
-    private ObrasFragmentToActivity interfaceObras;
-
     // RESPONSE
     Call<ObrasResponse> obraservicecreate = null;
 
@@ -58,9 +55,9 @@ public class ObrasFragment extends BaseFragments {
             materialDialog = null,
             materialDialogIndeterminate = null;
     EditText edt_nombre_obra;
-    RecyclerView recycler_obras;
-    TextView txt_vacio;
-    ProgressCircularText progressCircularText;
+//    RecyclerView recycler_obras;
+//    TextView txt_vacio;
+//    ProgressCircularText progressCircularText;
 
 
     // REALM
@@ -105,63 +102,28 @@ public class ObrasFragment extends BaseFragments {
         return view;
     }
 
-    void visibleViewContent(String viewcontent) {
-        progressCircularText.setVisibility(View.GONE);
-        recycler_obras.setVisibility(View.GONE);
-        txt_vacio.setVisibility(View.GONE);
-        if (viewcontent != null) {
-            switch (viewcontent) {
-                case "progress":
-                    progressCircularText.setVisibility(View.VISIBLE);
-                    break;
-                case "recycler":
-                    recycler_obras.setVisibility(View.VISIBLE);
-                    break;
-                case "empty":
-                    txt_vacio.setVisibility(View.VISIBLE);
-                    break;
-            }
-        } else {
-            progressCircularText.setVisibility(View.GONE);
-            recycler_obras.setVisibility(View.GONE);
-            txt_vacio.setVisibility(View.GONE);
-        }
-    }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof ObrasFragmentToActivity) {
-            interfaceObras = (ObrasFragmentToActivity) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        interfaceObras = null;
     }
 
     @Override
     public void onResume() {
         Log.d(TAG, "onResume");
         super.onResume();
-
         apigetallobras();
-        if (interfaceObras != null) {
-            interfaceObras.dismissSnackBar();
-        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if (interfaceObras != null) {
-            interfaceObras.dismissSnackBar();
-        }
+
         obraServiceAPI.cancelServices();
 
         if (obraservicecreate != null) {
@@ -190,23 +152,13 @@ public class ObrasFragment extends BaseFragments {
             @Override
             public void onChange(RealmResults<Obra> obras) {
                 if (obras.size() == 0) {
-                    showTextEmptyHiddeRecycler();
+                    visibleViewContent("empty");
                 } else {
-                    showRecyclerHiddeTextEmpty();
+                    visibleViewContent("recycler");
                     setAddAdapter(obras);
                 }
             }
         });
-    }
-
-    private void showRecyclerHiddeTextEmpty() {
-        recycler_obras.setVisibility(View.VISIBLE);
-        txt_vacio.setVisibility(View.GONE);
-    }
-
-    private void showTextEmptyHiddeRecycler() {
-        recycler_obras.setVisibility(View.GONE);
-        txt_vacio.setVisibility(View.VISIBLE);
     }
 
     private void setAddAdapter(final RealmResults<Obra> obras) {
@@ -233,7 +185,7 @@ public class ObrasFragment extends BaseFragments {
                 Toast.makeText(view.getContext(), "Editar", Toast.LENGTH_SHORT).show();
             }
         });
-        recycler_obras.setAdapter(recyclerObraAdapter);
+        recycler_view.setAdapter(recyclerObraAdapter);
         recyclerObraAdapter.notifyDataSetChanged();
     }
 
@@ -280,13 +232,6 @@ public class ObrasFragment extends BaseFragments {
         });
     }
 
-    void showSnackbar(String msg, String type) {
-        if (interfaceObras != null) {
-
-            interfaceObras.showSnackBar(msg, type);
-        }
-
-    }
 
     void apicreateaobra(final String nombre) {
         int id = 0;
@@ -379,7 +324,6 @@ public class ObrasFragment extends BaseFragments {
 
     private void saveIntDataBase(final RealmList<Obra> obraslist, boolean deleteallsync) {
 
-
         int nextId = getMaxIdObra();
         int countobrapi = obraslist.size();
 
@@ -392,9 +336,7 @@ public class ObrasFragment extends BaseFragments {
             realm.commitTransaction();
         }
 
-
         for (int i = 0; i < countobrapi; i++) {
-
             int id = obraslist.get(i).id;
             int idlocal = obraslist.get(i).idlocal;
             int status = obraslist.get(i).status;
@@ -411,7 +353,6 @@ public class ObrasFragment extends BaseFragments {
                 obraslist.get(i).idlocal = nextId;
                 nextId++;
             }
-
         }
 
         realmAsyncTask = realm.executeTransactionAsync(new Realm.Transaction() {
@@ -468,11 +409,11 @@ public class ObrasFragment extends BaseFragments {
     protected void initUI() {
         super.initUI();
         progressCircularText = (ProgressCircularText) view.findViewById(R.id.pgrs_obra);
-        recycler_obras = (RecyclerView) view.findViewById(R.id.recyclerview_obras);
+        recycler_view = (RecyclerView) view.findViewById(R.id.recyclerview_obras);
         txt_vacio = (TextView) view.findViewById(R.id.txt_vacio);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         layoutManager.setAutoMeasureEnabled(false);
-        recycler_obras.setLayoutManager(layoutManager);
+        recycler_view.setLayoutManager(layoutManager);
         visibleViewContent(null);
     }
 

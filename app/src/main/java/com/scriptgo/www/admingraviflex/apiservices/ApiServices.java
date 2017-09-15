@@ -1,6 +1,7 @@
 package com.scriptgo.www.admingraviflex.apiservices;
 
 import com.scriptgo.www.admingraviflex.constans.ConstansHelps;
+import com.scriptgo.www.admingraviflex.responses.EgresoResponse;
 import com.scriptgo.www.admingraviflex.responses.LoginResponse;
 import com.scriptgo.www.admingraviflex.responses.ObrasResponse;
 
@@ -80,5 +81,14 @@ public interface ApiServices {
                                         @Field("createdAtLocalDB") Date datecreatelocal,
                                         @Field("updatedAtLocalDB") Date dateupdatelocal,
                                         @Field("edt_iduser") Integer iduser);
+
+
+    /*
+   *  EGRESOS
+   **/
+    @GET("{edt_iduser}/expenditure/work/{edt_idobra}")
+    @Headers(ConstansHelps.ACCESS_TOKEN)
+    Call<EgresoResponse> processGetAllEgresoByObra(@Path("edt_iduser") int iduser,@Path("edt_idobra") int idobra);
+
 
 }

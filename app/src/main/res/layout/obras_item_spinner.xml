@@ -8,8 +8,11 @@
         android:id="@+id/txt_obra"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
         android:text="Obra -"
-        android:layout_margin="8dp"
         android:textSize="14sp"
         android:textStyle="bold" />
 
