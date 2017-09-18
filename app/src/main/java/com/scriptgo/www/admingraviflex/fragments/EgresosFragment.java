@@ -276,7 +276,7 @@ public class EgresosFragment extends BaseFragments {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 Toast.makeText(getActivity(), "" + obrasList.get(position).name, Toast.LENGTH_SHORT).show();
-                apigetallegresosbyobra(1);
+                apigetallegresosbyobra(obrasList.get(position).id);
 
             }
 

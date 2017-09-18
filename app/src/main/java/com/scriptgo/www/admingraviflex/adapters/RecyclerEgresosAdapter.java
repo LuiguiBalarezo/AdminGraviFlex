@@ -12,6 +12,10 @@ import com.scriptgo.www.admingraviflex.R;
 import com.scriptgo.www.admingraviflex.interfaces.EgresosClickRecyclerView;
 import com.scriptgo.www.admingraviflex.models.Egreso;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 import io.realm.RealmList;
 
 /**
@@ -24,6 +28,14 @@ public class RecyclerEgresosAdapter extends RecyclerView.Adapter<RecyclerEgresos
     private Context context;
 
     EgresosClickRecyclerView listener;
+
+    String fechapago = null;
+    SimpleDateFormat simpleDateFormat = null;
+    Date d_fechapago = null;
+    Calendar calendar = null;
+
+    int dia_pago = 0, mes_pago = 0, anio_pago = 0;
+    int dia_create = 0, mes_create = 0, anio_create = 0;
 
     public RecyclerEgresosAdapter(Context ctx, RealmList<Egreso> egresos, EgresosClickRecyclerView listener) {
         this.context = ctx;
@@ -68,15 +80,37 @@ public class RecyclerEgresosAdapter extends RecyclerView.Adapter<RecyclerEgresos
     @Override
     public void onBindViewHolder(ObraViewHolder holder, int position) {
         Egreso egreso = egresos.get(position);
-        holder.txt_fecha_pago.setText(egreso.date.toString());
 
-//        if(obra.id != 0){
-//            holder.img_iconsync.setImageResource(R.drawable.ic_cloud_done_black_24dp);
-//            holder.img_iconsync.setEnabled(false);
-//        }else{
-//            holder.img_iconsync.setImageResource(R.drawable.ic_access_time_black_24dp);
-//            holder.img_iconsync.setEnabled(true);
-//        }
+        try {
+
+            calendar = Calendar.getInstance();
+            calendar.setTime(egreso.date);
+            dia_pago = calendar.get(Calendar.DAY_OF_MONTH);
+            mes_pago = calendar.get(Calendar.MONTH);
+            anio_pago = calendar.get(Calendar.YEAR);
+
+            holder.txt_fecha_pago.setText("Fecha de Pago: " + String.format("%02d", dia_pago) + "-" + String.format("%02d", mes_pago) + "-" + anio_pago);
+            holder.txt_monto.setText("Monto Pago: S/." +  String.format("%.2f", egreso.amount));
+
+            calendar.setTime(egreso.createdAt);
+
+            dia_create = calendar.get(Calendar.DAY_OF_MONTH);
+            mes_create =  calendar.get(Calendar.MONTH);
+            anio_create =  calendar.get(Calendar.YEAR);
+
+
+
+            holder.txt_fecha_creacion.setText("Fecha de Creacion: " + String.format("%02d", dia_create) + "-" + String.format("%02d", mes_create) + "-" + anio_create);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public String checkDigit(int number) {
+        return number <= 9 ? "0" + number : String.valueOf(number);
     }
 
     @Override
@@ -96,7 +130,6 @@ public class RecyclerEgresosAdapter extends RecyclerView.Adapter<RecyclerEgresos
             super(itemView);
             txt_fecha_pago = (TextView) itemView.findViewById(R.id.txt_fecha_pago);
             txt_monto = (TextView) itemView.findViewById(R.id.txt_monto);
-            txt_creador = (TextView) itemView.findViewById(R.id.txt_creador);
             txt_fecha_creacion = (TextView) itemView.findViewById(R.id.txt_fecha_creacion);
             img_doc = (ImageView) itemView.findViewById(R.id.img_doc);
         }

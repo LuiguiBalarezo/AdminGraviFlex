@@ -1,7 +1,6 @@
 package com.scriptgo.www.admingraviflex.application;
 
 import android.app.Application;
-
 import io.realm.Realm;
 
 /**
