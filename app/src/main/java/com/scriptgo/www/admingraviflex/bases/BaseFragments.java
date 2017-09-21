@@ -21,9 +21,11 @@ import io.realm.Realm;
 
 public class BaseFragments extends Fragment {
 
+
+
     /* UI */
     protected View view;
-    protected MaterialDialog materialDialogAdd = null,
+    public MaterialDialog materialDialogAdd = null,
             materialDialogEdit = null,
             materialDialogIndeterminate = null;
     protected TextView txt_vacio;

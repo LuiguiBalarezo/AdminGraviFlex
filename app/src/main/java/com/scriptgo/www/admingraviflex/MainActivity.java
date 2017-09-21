@@ -1,8 +1,11 @@
 package com.scriptgo.www.admingraviflex;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -17,6 +20,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.scriptgo.www.admingraviflex.fragments.EgresosFragment;
@@ -33,6 +39,9 @@ public class MainActivity extends AppCompatActivity
         ValoracionesFragment.OnFragmentInteractionListener,
         NavigationView.OnNavigationItemSelectedListener {
 
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
+
+
     // UI
     View view;
     Toolbar toolbar;
@@ -41,11 +50,19 @@ public class MainActivity extends AppCompatActivity
     NavigationView navigationView;
     Snackbar snackbar = null;
     ActionBarDrawerToggle toggle;
+    Button btnExpBottomSheet;
+    LinearLayout bottomSheet;
+    BottomSheetBehavior bsb = null;
+    ImageButton imgbtn_opencamera = null, imgbtn_openpickerphoto = null;
     // TRANSACTION
     FragmentManager fragmentManager;
 
     /* ITEM */
     Intent intentpreferences;
+
+    //FRAGMENTS
+    EgresosFragment egresosFragment = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +80,13 @@ public class MainActivity extends AppCompatActivity
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
+
+        bottomSheet = (LinearLayout) findViewById(R.id.bottomSheet);
+        imgbtn_opencamera = (ImageButton) bottomSheet.findViewById(R.id.imgbtn_opencamera);
+        imgbtn_openpickerphoto = (ImageButton) bottomSheet.findViewById(R.id.imgbtn_openpickerphoto);
+
+        imgbtn_opencamera.setOnClickListener(onClickListener);
+        imgbtn_openpickerphoto.setOnClickListener(onClickListener);
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -125,6 +149,9 @@ public class MainActivity extends AppCompatActivity
         Fragment fragment = null;
         Class fragmentClass = null;
 
+
+
+
         switch (iditemnav) {
             case R.id.nav_obras:
 
@@ -148,6 +175,9 @@ public class MainActivity extends AppCompatActivity
                 fab.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+
+                        bsb = BottomSheetBehavior.from(bottomSheet);
+                        bsb.setState(BottomSheetBehavior.STATE_EXPANDED);
 
                     }
                 });
@@ -192,6 +222,31 @@ public class MainActivity extends AppCompatActivity
         }
 
         drawer.closeDrawer(GravityCompat.START);
+    }
+
+    private void openCamera() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+
+
+            egresosFragment = (EgresosFragment) getSupportFragmentManager().findFragmentByTag(EgresosFragment.class.getSimpleName());
+            egresosFragment.initOpenDialogAdd();
+            egresosFragment.setImageViewInDialog(imageBitmap);
+
+            Toast.makeText(this, "" + imageBitmap, Toast.LENGTH_SHORT).show();
+
+        }
+
     }
 
     // INTERFACES
@@ -248,4 +303,19 @@ public class MainActivity extends AppCompatActivity
         intent = new Intent(this, ClassActivity);
         startActivity(intent);
     }
+
+    View.OnClickListener onClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            bsb.setState(BottomSheetBehavior.STATE_HIDDEN);
+            switch (v.getId()) {
+                case R.id.imgbtn_opencamera:
+                    openCamera();
+                    break;
+                case R.id.imgbtn_openpickerphoto:
+                    Toast.makeText(MainActivity.this, "AGLERIE", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+    };
 }

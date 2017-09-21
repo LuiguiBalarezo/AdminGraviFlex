@@ -1,6 +1,7 @@
 package com.scriptgo.www.admingraviflex.fragments;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.AppCompatSpinner;
@@ -10,12 +11,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.scriptgo.www.admingraviflex.MainActivity;
 import com.scriptgo.www.admingraviflex.R;
 import com.scriptgo.www.admingraviflex.adapters.RecyclerEgresosAdapter;
 import com.scriptgo.www.admingraviflex.adapters.SpinnerObraAdapter;
@@ -309,47 +310,43 @@ public class EgresosFragment extends BaseFragments {
         });
         recycler_view.setAdapter(recyclerEgresosAdapter);
         recyclerEgresosAdapter.notifyDataSetChanged();
-
-//        spinner.setAdapter(spinnerObraAdapter);
-//        spinnerObraAdapter.notifyDataSetChanged();
-//        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//            @Override
-//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//                Toast.makeText(getActivity(), "" + obrasList.get(position).name, Toast.LENGTH_SHORT).show();
-//                apigetallegresosbyobra(1);
-//
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> parent) {
-//
-//            }
-//        });
     }
 
 
     /* */
+    public void initOpenDialogAdd() {
+        openDialogAdd("Nuevo Egreso", R.layout.dialog_egresos, "Crear", "Salir", singleButtonCallback, singleButtonCallback);
+    }
 
-    // METHOD PUBLICS
-    public void openDialogEgresos(MainActivity context, MaterialDialog materialDialog) {
-        materialDialog = new MaterialDialog.Builder(context).autoDismiss(false)
-                .title("Nuevo Egreso")
-                .customView(R.layout.dialog_egresos, true)
-                .positiveText("Crear")
-                .negativeText("Salir")
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+    public void setImageViewInDialog(Bitmap imageBitmap){
+        ImageView imageView = (ImageView)materialDialogAdd.findViewById(R.id.img_egreso_dialog);
+        imageView.setImageBitmap(imageBitmap);
+    }
 
-                    }
-                }).onNegative(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+    MaterialDialog.SingleButtonCallback singleButtonCallback = new MaterialDialog.SingleButtonCallback() {
+        @Override
+        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+            switch (which.name()) {
+                case "POSITIVE":
+                    positiveadd(dialog);
+                    break;
+                case "NEGATIVE":
+                    negativeadd();
+                    break;
+            }
+        }
+    };
 
-                    }
-                })
-                .build();
-        materialDialog.show();
+    void positiveadd(MaterialDialog dialog) {
+//        edt_nombre_obra = (EditText) dialog.findViewById(edt_nombre_obra);
+//        String nombreobra = edt_nombre_obra.getText().toString();
+//        edt_nombre_obra.setText(null);
+//        apicreateaobra(nombreobra);
+        dismissDialogAdd();
+    }
+
+    void negativeadd() {
+        dismissDialogAdd();
     }
 
     @Override

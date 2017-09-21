@@ -32,4 +32,6 @@
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@drawable/ic_add_black_24dp" />
 
+    <include layout="@layout/bottom_sheet_main" />
+
 </android.support.design.widget.CoordinatorLayout>
