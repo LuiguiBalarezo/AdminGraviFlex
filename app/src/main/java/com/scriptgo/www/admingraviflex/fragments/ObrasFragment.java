@@ -25,7 +25,6 @@ import com.scriptgo.www.admingraviflex.models.Obra;
 import com.scriptgo.www.admingraviflex.responses.ObrasResponse;
 import com.scriptgo.www.admingraviflex.services.ObraServiceAPI;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import io.realm.Realm;
@@ -317,10 +316,7 @@ public class ObrasFragment extends BaseFragments {
         return nextId;
     }
 
-    private Date getDateTime() {
-        String date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
-        return new Date(date);
-    }
+
 
     private void saveIntDataBase(final RealmList<Obra> obraslist, boolean deleteallsync) {
 

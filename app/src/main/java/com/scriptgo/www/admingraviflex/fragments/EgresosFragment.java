@@ -1,5 +1,7 @@
 package com.scriptgo.www.admingraviflex.fragments;
 
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -11,6 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,7 +51,8 @@ public class EgresosFragment extends BaseFragments {
 
     //    /* UI */
     AppCompatSpinner spinner = null;
-
+    EditText edt_fecha_emision = null, edt_serie= null, edt_monto= null;
+    ImageView imageView = null;
     // RESPONSE
     Call<ObrasResponse> obraservicegetlistactive_id_name = null;
 
@@ -67,6 +72,9 @@ public class EgresosFragment extends BaseFragments {
     RealmAsyncTask realmAsyncTask = null;
     RealmList<Obra> obrasList = null;
     RealmList<Egreso> egresosList = null;
+
+    /* VARS*/
+    String fecha_emision = null , serie =null, monto = null;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -92,6 +100,8 @@ public class EgresosFragment extends BaseFragments {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+
         initServices();
     }
 
@@ -316,10 +326,19 @@ public class EgresosFragment extends BaseFragments {
     /* */
     public void initOpenDialogAdd() {
         openDialogAdd("Nuevo Egreso", R.layout.dialog_egresos, "Crear", "Salir", singleButtonCallback, singleButtonCallback);
+        edt_fecha_emision = (EditText)materialDialogAdd.findViewById(R.id.edt_fecha_emision);
+        edt_fecha_emision.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openDialogDatePicker().show();
+            }
+        });
+        edt_serie = (EditText)materialDialogAdd.findViewById(R.id.edt_serie);
+        edt_monto = (EditText)materialDialogAdd.findViewById(R.id.edt_monto);
     }
 
     public void setImageViewInDialog(Bitmap imageBitmap){
-        ImageView imageView = (ImageView)materialDialogAdd.findViewById(R.id.img_egreso_dialog);
+        imageView = (ImageView)materialDialogAdd.findViewById(R.id.img_egreso_dialog);
         imageView.setImageBitmap(imageBitmap);
     }
 
@@ -337,10 +356,11 @@ public class EgresosFragment extends BaseFragments {
         }
     };
 
+
     void positiveadd(MaterialDialog dialog) {
-//        edt_nombre_obra = (EditText) dialog.findViewById(edt_nombre_obra);
-//        String nombreobra = edt_nombre_obra.getText().toString();
-//        edt_nombre_obra.setText(null);
+        fecha_emision = edt_fecha_emision.getText().toString();
+        fecha_emision = edt_serie.getText().toString();
+        fecha_emision = edt_monto.getText().toString();
 //        apicreateaobra(nombreobra);
         dismissDialogAdd();
     }
@@ -348,6 +368,75 @@ public class EgresosFragment extends BaseFragments {
     void negativeadd() {
         dismissDialogAdd();
     }
+
+    void apicreateaobra(final String nombre) {
+
+        int id = 0;
+        int idlocal = getMaxId();
+        Date createdAtLocalDB = getDateTime();
+
+//        obraServiceAPI.create(id, idlocal, nombre, createdAtLocalDB, new CallBackProcessObraApi() {
+//            @Override
+//            public void connect(RealmList<Obra> obraAPI) {
+//                final RealmList<Obra> obras = obraAPI;
+//                saveIntDataBase(obras, false);
+//                showSnackbar("Sincronizado", "success");
+//
+//            }
+//
+//            @Override
+//            public void disconnect() {
+//                visibleViewContent("progress");
+//                dismissDialogIndeterminate();
+//
+//                showSnackbar("Sin Conexion / Guardado en Local", "info");
+//
+//                final Obra obra = new Obra();
+//                obra.idlocal = getMaxIdObra();
+//                obra.name = nombre;
+//                obra.createdAt = null;
+//                obra.updatedAt = null;
+//                obra.createdAtLocalDB = getDateTime();
+//                obra.status = 1;
+//                obra.sync = 0;
+//                obra.iduser = iduser;
+//
+//                realm.executeTransactionAsync(new Realm.Transaction() {
+//                    @Override
+//                    public void execute(Realm realm) {
+//                        realm.copyToRealmOrUpdate(obra);
+//                    }
+//                }, new Realm.Transaction.OnSuccess() {
+//                    @Override
+//                    public void onSuccess() {
+//                        visibleViewContent("recycler");
+//                        checkObras();
+//                    }
+//                }, new Realm.Transaction.OnError() {
+//                    @Override
+//                    public void onError(Throwable error) {
+//                        visibleViewContent(null);
+//                        showSnackbar("Realm : erronea al Agregar Obra!", "error");
+//
+//                    }
+//                });
+//            }
+//        });
+    }
+
+    protected Dialog openDialogDatePicker() {
+        return new DatePickerDialog(getActivity(), onDateSetListener, anioinit, mesinit, diainit);
+    }
+
+    DatePickerDialog.OnDateSetListener onDateSetListener = new DatePickerDialog.OnDateSetListener() {
+                @Override
+        public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+            dia = dayOfMonth;
+            mes = month;
+            anio = year;
+                    edt_fecha_emision.setText(dia + "-" + mes + "-"+ anio);
+        }
+    };
 
     @Override
     protected void initUI() {
@@ -359,6 +448,9 @@ public class EgresosFragment extends BaseFragments {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         layoutManager.setAutoMeasureEnabled(false);
         recycler_view.setLayoutManager(layoutManager);
+
+
+
     }
 
     @Override

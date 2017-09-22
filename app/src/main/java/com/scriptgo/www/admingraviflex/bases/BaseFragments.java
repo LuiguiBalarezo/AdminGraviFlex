@@ -13,6 +13,10 @@ import com.scriptgo.www.admingraviflex.compound.ProgressCircularText;
 import com.scriptgo.www.admingraviflex.interfaces.ObrasFragmentToActivity;
 import com.scriptgo.www.admingraviflex.models.Usuario;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 import io.realm.Realm;
 
 /**
@@ -20,8 +24,6 @@ import io.realm.Realm;
  */
 
 public class BaseFragments extends Fragment {
-
-
 
     /* UI */
     protected View view;
@@ -41,18 +43,27 @@ public class BaseFragments extends Fragment {
     protected boolean listobrasDBempty = false;
     protected boolean listegresosAPIempty = false;
     protected boolean listegresosDBempty = false;
+    protected int diainit, mesinit, anioinit, dia, mes, anio;
 
+    Calendar calendar = null;
     /* MODELS */
     protected Usuario m_usuario = null;
 
     /* CALLBACKS */
     private ObrasFragmentToActivity activityactions;
 
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         realm = Realm.getDefaultInstance();
         iduser = getIdUser();
+        calendar = Calendar.getInstance();
+
+        diainit = calendar.get(Calendar.DAY_OF_MONTH);
+        mesinit = calendar.get(Calendar.MONTH);
+        anioinit = calendar.get(Calendar.YEAR);
+
     }
 
 
@@ -99,6 +110,20 @@ public class BaseFragments extends Fragment {
         m_usuario = realm.where(Usuario.class).findFirst();
         return iduser = m_usuario.id;
     }
+
+//    protected Dialog openDialogDatePicker() {
+//        return new DatePickerDialog(getActivity(), onDateSetListener, anio, mes, dia);
+//    }
+//
+//    DatePickerDialog.OnDateSetListener onDateSetListener = new DatePickerDialog.OnDateSetListener() {
+//        @Override
+//        public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+//            dia = dayOfMonth;
+//            mes = month;
+//            anio = year;
+//
+//        }
+//    };
 
     /* INICIALIZADOR DE VIEWS*/
     protected void initUI() {
@@ -183,5 +208,10 @@ public class BaseFragments extends Fragment {
             recycler_view.setVisibility(View.GONE);
             txt_vacio.setVisibility(View.GONE);
         }
+    }
+
+    protected Date getDateTime() {
+        String date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
+        return new Date(date);
     }
 }
