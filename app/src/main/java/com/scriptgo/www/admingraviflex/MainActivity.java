@@ -63,6 +63,8 @@ public class MainActivity extends AppCompatActivity
     //FRAGMENTS
     EgresosFragment egresosFragment = null;
 
+    /* VARS */
+    Bitmap imageBitmap = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -236,7 +238,7 @@ public class MainActivity extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
+                imageBitmap = (Bitmap) extras.get("data");
 
 
             egresosFragment = (EgresosFragment) getSupportFragmentManager().findFragmentByTag(EgresosFragment.class.getSimpleName());
@@ -248,6 +250,8 @@ public class MainActivity extends AppCompatActivity
         }
 
     }
+
+
 
     // INTERFACES
     @Override

@@ -29,7 +29,7 @@ public interface ApiServices {
     @Headers(ConstansHelps.ACCESS_TOKEN)
     Call<LoginResponse> processLogin(@Field("edt_usuario") String usuario, @Field("edt_clave") String clave);
 
-//    @FormUrlEncoded
+    //    @FormUrlEncoded
 //    @POST("logout")
 //    @Headers(ConstantsHelp.ACCESS_TOKEN)
 //    Call<LoginResponse> processLogout(@Field("edt_id") String id);
@@ -59,18 +59,18 @@ public interface ApiServices {
     @POST("work/create")
     @Headers(ConstansHelps.ACCESS_TOKEN)
     Call<ObrasResponse> processCreateObra(@Field("edt_id") Integer id,
-                                       @Field("edt_idlocal") Integer idlocal,
-                                       @Field("edt_nombre") String namework,
-                                       @Field("createdAtLocalDB") Date datecreatelocal,
-                                       @Field("edt_iduser") Integer iduser);
+                                          @Field("edt_idlocal") Integer idlocal,
+                                          @Field("edt_nombre") String namework,
+                                          @Field("createdAtLocalDB") Date datecreatelocal,
+                                          @Field("edt_iduser") Integer iduser);
 
     @FormUrlEncoded
     @POST("work/update")
     @Headers(ConstansHelps.ACCESS_TOKEN)
     Call<ObrasResponse> processUpdateObra(@Field("edt_id") Integer id,
-                                       @Field("edt_nombre") String namework,
-                                       @Field("updatedAtLocalDB") Date dateupdatelocal,
-                                       @Field("edt_iduser") Integer iduser);
+                                          @Field("edt_nombre") String namework,
+                                          @Field("updatedAtLocalDB") Date dateupdatelocal,
+                                          @Field("edt_iduser") Integer iduser);
 
     @FormUrlEncoded
     @POST("work/sync")
@@ -88,7 +88,21 @@ public interface ApiServices {
    **/
     @GET("{edt_iduser}/expenditure/work/{edt_idobra}")
     @Headers(ConstansHelps.ACCESS_TOKEN)
-    Call<EgresoResponse> processGetAllEgresoByObra(@Path("edt_iduser") int iduser,@Path("edt_idobra") int idobra);
+    Call<EgresoResponse> processGetAllEgresoByObra(@Path("edt_iduser") int iduser, @Path("edt_idobra") int idobra);
+
+
+    @FormUrlEncoded
+    @POST("{edt_iduser}/expenditure/create")
+    @Headers(ConstansHelps.ACCESS_TOKEN)
+    Call<EgresoResponse> processCreateEgreso(@Field("edt_id") Integer id,
+                                             @Field("edt_idlocal") Integer idlocal,
+                                             @Field("edt_idobra") Integer idobra,
+                                             @Field("edt_fecha") Date fecha,
+                                             @Field("edt_numero") int numero,
+                                             @Field("edt_monto") double monto,
+                                             @Field("edt_imagen") String image,
+                                             @Field("createdAtLocalDB") Date datecreatelocal,
+                                             @Path("edt_iduser") Integer iduser);
 
 
 }

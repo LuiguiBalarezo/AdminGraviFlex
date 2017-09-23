@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +27,7 @@ import com.scriptgo.www.admingraviflex.adapters.RecyclerEgresosAdapter;
 import com.scriptgo.www.admingraviflex.adapters.SpinnerObraAdapter;
 import com.scriptgo.www.admingraviflex.bases.BaseFragments;
 import com.scriptgo.www.admingraviflex.compound.ProgressCircularText;
-import com.scriptgo.www.admingraviflex.interfaces.CallBackProcesEgresosApi;
+import com.scriptgo.www.admingraviflex.interfaces.CallBackProcessEgresosApi;
 import com.scriptgo.www.admingraviflex.interfaces.CallBackProcessObraApi;
 import com.scriptgo.www.admingraviflex.interfaces.EgresosClickRecyclerView;
 import com.scriptgo.www.admingraviflex.models.Egreso;
@@ -35,6 +36,10 @@ import com.scriptgo.www.admingraviflex.responses.ObrasResponse;
 import com.scriptgo.www.admingraviflex.services.EgresoServiceAPI;
 import com.scriptgo.www.admingraviflex.services.ObraServiceAPI;
 
+import java.io.ByteArrayOutputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import io.realm.Realm;
@@ -51,7 +56,7 @@ public class EgresosFragment extends BaseFragments {
 
     //    /* UI */
     AppCompatSpinner spinner = null;
-    EditText edt_fecha_emision = null, edt_serie= null, edt_monto= null;
+    EditText edt_fecha_emision = null, edt_serie = null, edt_monto = null;
     ImageView imageView = null;
     // RESPONSE
     Call<ObrasResponse> obraservicegetlistactive_id_name = null;
@@ -74,7 +79,17 @@ public class EgresosFragment extends BaseFragments {
     RealmList<Egreso> egresosList = null;
 
     /* VARS*/
-    String fecha_emision = null , serie =null, monto = null;
+    Date fecha_emision = null;
+    int serie = 0;
+    float monto = 0;
+    int idobra = 0;
+    String image = null;
+    Integer positionitemspinner = null;
+    Calendar calendar = Calendar.getInstance();
+    String IDOBRA = "IDOBRA",
+            POSITIONSPINNER = "POSITIONSPINNER";
+
+    Bitmap imageBitmap = null;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -101,6 +116,10 @@ public class EgresosFragment extends BaseFragments {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
+        if (savedInstanceState != null) {
+            idobra = savedInstanceState.getInt(IDOBRA);
+            positionitemspinner = savedInstanceState.getInt(POSITIONSPINNER);
+        }
 
         initServices();
     }
@@ -167,25 +186,27 @@ public class EgresosFragment extends BaseFragments {
 
 
     void apigetallegresosbyobra(int idobra) {
-        egresoServiceAPI.getAllEgresosByObra(idobra, new CallBackProcesEgresosApi() {
+        egresoServiceAPI.getAllEgresosByObra(idobra, new CallBackProcessEgresosApi() {
             @Override
             public void connect(RealmList<Egreso> egresosAPI) {
                 listegresosAPIempty = (egresosAPI.size() == 0) ? true : false;
-                final RealmResults<Egreso> egresoDB = realm.where(Egreso.class).findAll();
-                listegresosDBempty = (egresoDB.size() == 0) ? true : false;
+                saveIntDataBase(egresosAPI, true);
 
-                if (listegresosAPIempty && listegresosDBempty) {
-                    visibleViewContent("empty");
-                } else if (listegresosAPIempty && !listegresosDBempty) {
-                    visibleViewContent("recycler");
-                    setRecyclerAddAdapter(egresoDB);
-                } else if (!listegresosAPIempty && listegresosDBempty) {
-                    visibleViewContent("recycler");
-                    saveIntDataBase(egresosAPI, true);
-                } else if (!listegresosAPIempty && !listegresosDBempty) {
-                    visibleViewContent("recycler");
-                    saveIntDataBase(egresosAPI, true);
-                }
+//                final RealmResults<Egreso> egresoDB = realm.where(Egreso.class).findAll();
+//                listegresosDBempty = (egresoDB.size() == 0) ? true : false;
+//
+//                if (listegresosAPIempty && listegresosDBempty) {
+//                    visibleViewContent("empty");
+//                } else if (listegresosAPIempty && !listegresosDBempty) {
+//                    visibleViewContent("recycler");
+//                    setRecyclerAddAdapter(egresoDB);
+//                } else if (!listegresosAPIempty && listegresosDBempty) {
+//                    visibleViewContent("recycler");
+//                    saveIntDataBase(egresosAPI, true);
+//                } else if (!listegresosAPIempty && !listegresosDBempty) {
+//                    visibleViewContent("recycler");
+//                    saveIntDataBase(egresosAPI, true);
+//                }
 
             }
 
@@ -252,7 +273,7 @@ public class EgresosFragment extends BaseFragments {
 
     /* METHOD */
     private void check() {
-        RealmResults<Egreso> egresoRealmResults = realm.where(Egreso.class).findAllAsync();
+        RealmResults<Egreso> egresoRealmResults = realm.where(Egreso.class).equalTo("idwork", idobra).findAllAsync();
         egresoRealmResults.addChangeListener(new RealmChangeListener<RealmResults<Egreso>>() {
             @Override
             public void onChange(RealmResults<Egreso> egresos) {
@@ -283,11 +304,16 @@ public class EgresosFragment extends BaseFragments {
         spinnerObraAdapter = new SpinnerObraAdapter(getContext(), R.layout.obras_item_spinner, obrasList);
         spinner.setAdapter(spinnerObraAdapter);
         spinnerObraAdapter.notifyDataSetChanged();
+        if(positionitemspinner !=null){
+            spinner.setSelection(positionitemspinner);
+        }
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 Toast.makeText(getActivity(), "" + obrasList.get(position).name, Toast.LENGTH_SHORT).show();
-                apigetallegresosbyobra(obrasList.get(position).id);
+                idobra = obrasList.get(position).id;
+                positionitemspinner = position;
+                apigetallegresosbyobra(idobra);
 
             }
 
@@ -326,20 +352,29 @@ public class EgresosFragment extends BaseFragments {
     /* */
     public void initOpenDialogAdd() {
         openDialogAdd("Nuevo Egreso", R.layout.dialog_egresos, "Crear", "Salir", singleButtonCallback, singleButtonCallback);
-        edt_fecha_emision = (EditText)materialDialogAdd.findViewById(R.id.edt_fecha_emision);
+        edt_fecha_emision = (EditText) materialDialogAdd.findViewById(R.id.edt_fecha_emision);
         edt_fecha_emision.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openDialogDatePicker().show();
             }
         });
-        edt_serie = (EditText)materialDialogAdd.findViewById(R.id.edt_serie);
-        edt_monto = (EditText)materialDialogAdd.findViewById(R.id.edt_monto);
+        edt_serie = (EditText) materialDialogAdd.findViewById(R.id.edt_serie);
+        edt_monto = (EditText) materialDialogAdd.findViewById(R.id.edt_monto);
     }
 
-    public void setImageViewInDialog(Bitmap imageBitmap){
-        imageView = (ImageView)materialDialogAdd.findViewById(R.id.img_egreso_dialog);
+    public void setImageViewInDialog(Bitmap imgbmp) {
+        imageView = (ImageView) materialDialogAdd.findViewById(R.id.img_egreso_dialog);
+        imageBitmap = imgbmp;
         imageView.setImageBitmap(imageBitmap);
+    }
+
+
+    private String imagetToString(Bitmap bmp){
+        ByteArrayOutputStream byteArrayInputStream = new ByteArrayOutputStream();
+        bmp.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayInputStream);
+        byte[] imgByte = byteArrayInputStream.toByteArray();
+        return Base64.encodeToString(imgByte, Base64.DEFAULT);
     }
 
     MaterialDialog.SingleButtonCallback singleButtonCallback = new MaterialDialog.SingleButtonCallback() {
@@ -358,10 +393,18 @@ public class EgresosFragment extends BaseFragments {
 
 
     void positiveadd(MaterialDialog dialog) {
-        fecha_emision = edt_fecha_emision.getText().toString();
-        fecha_emision = edt_serie.getText().toString();
-        fecha_emision = edt_monto.getText().toString();
-//        apicreateaobra(nombreobra);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            fecha_emision = format.parse(edt_fecha_emision.getText().toString());
+        } catch (ParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        serie = Integer.parseInt(edt_serie.getText().toString());
+        monto = Float.parseFloat(edt_monto.getText().toString());
+        image = imagetToString(imageBitmap);
+        apicreateaEgreso(fecha_emision, serie, monto, image);
         dismissDialogAdd();
     }
 
@@ -369,59 +412,77 @@ public class EgresosFragment extends BaseFragments {
         dismissDialogAdd();
     }
 
-    void apicreateaobra(final String nombre) {
+    void apicreateaEgreso(final Date fecha, final int serie, final float monto, String image) {
 
         int id = 0;
         int idlocal = getMaxId();
         Date createdAtLocalDB = getDateTime();
 
-//        obraServiceAPI.create(id, idlocal, nombre, createdAtLocalDB, new CallBackProcessObraApi() {
-//            @Override
-//            public void connect(RealmList<Obra> obraAPI) {
-//                final RealmList<Obra> obras = obraAPI;
-//                saveIntDataBase(obras, false);
-//                showSnackbar("Sincronizado", "success");
-//
-//            }
-//
-//            @Override
-//            public void disconnect() {
-//                visibleViewContent("progress");
-//                dismissDialogIndeterminate();
-//
-//                showSnackbar("Sin Conexion / Guardado en Local", "info");
-//
-//                final Obra obra = new Obra();
-//                obra.idlocal = getMaxIdObra();
-//                obra.name = nombre;
-//                obra.createdAt = null;
-//                obra.updatedAt = null;
-//                obra.createdAtLocalDB = getDateTime();
-//                obra.status = 1;
-//                obra.sync = 0;
-//                obra.iduser = iduser;
-//
-//                realm.executeTransactionAsync(new Realm.Transaction() {
-//                    @Override
-//                    public void execute(Realm realm) {
-//                        realm.copyToRealmOrUpdate(obra);
-//                    }
-//                }, new Realm.Transaction.OnSuccess() {
-//                    @Override
-//                    public void onSuccess() {
-//                        visibleViewContent("recycler");
-//                        checkObras();
-//                    }
-//                }, new Realm.Transaction.OnError() {
-//                    @Override
-//                    public void onError(Throwable error) {
-//                        visibleViewContent(null);
-//                        showSnackbar("Realm : erronea al Agregar Obra!", "error");
-//
-//                    }
-//                });
-//            }
-//        });
+        egresoServiceAPI.create(id, idlocal, idobra, fecha, serie, monto, image, createdAtLocalDB, new CallBackProcessEgresosApi() {
+            @Override
+            public void connect(RealmList<Egreso> egresoAPI) {
+                final RealmList<Egreso> egresos = egresoAPI;
+                saveIntDataBase(egresos, false);
+                showSnackbar("Sincronizado", "success");
+            }
+
+            @Override
+            public void disconnect() {
+                visibleViewContent("progress");
+                dismissDialogIndeterminate();
+
+                showSnackbar("Sin Conexion / Guardado en Local", "info");
+
+                final Egreso egreso = new Egreso();
+                egreso.idlocal = getMaxId();
+                egreso.idwork = idobra;
+                egreso.date = fecha;
+                egreso.number = serie;
+                egreso.amount = monto;
+                egreso.createdAt = null;
+                egreso.updatedAt = null;
+                egreso.createdAtLocalDB = getDateTime();
+                egreso.status = 1;
+                egreso.sync = 0;
+                egreso.iduser = iduser;
+
+                realm.executeTransactionAsync(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+                        realm.copyToRealmOrUpdate(egreso);
+                    }
+                }, new Realm.Transaction.OnSuccess() {
+                    @Override
+                    public void onSuccess() {
+                        visibleViewContent("recycler");
+                        checkObras();
+                    }
+                }, new Realm.Transaction.OnError() {
+                    @Override
+                    public void onError(Throwable error) {
+                        visibleViewContent(null);
+                        showSnackbar("Realm : erronea al Agregar Obra!", "error");
+
+                    }
+                });
+            }
+        });
+    }
+
+    /* METHOD */
+    private void checkObras() {
+        RealmResults<Egreso> obrasdb = realm.where(Egreso.class).findAllAsync();
+        obrasdb.addChangeListener(new RealmChangeListener<RealmResults<Egreso>>() {
+            @Override
+            public void onChange(RealmResults<Egreso> egresos) {
+                if (egresos.size() == 0) {
+                    visibleViewContent("empty");
+                } else {
+                    visibleViewContent("recycler");
+                    setRecyclerAddAdapter(egresos);
+                }
+            }
+        });
     }
 
     protected Dialog openDialogDatePicker() {
@@ -429,12 +490,12 @@ public class EgresosFragment extends BaseFragments {
     }
 
     DatePickerDialog.OnDateSetListener onDateSetListener = new DatePickerDialog.OnDateSetListener() {
-                @Override
+        @Override
         public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
             dia = dayOfMonth;
             mes = month;
             anio = year;
-                    edt_fecha_emision.setText(dia + "-" + mes + "-"+ anio);
+            edt_fecha_emision.setText(dia + "-" + mes + "-" + anio);
         }
     };
 
@@ -450,7 +511,14 @@ public class EgresosFragment extends BaseFragments {
         recycler_view.setLayoutManager(layoutManager);
 
 
+    }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putInt(IDOBRA, idobra);
+        outState.putInt(POSITIONSPINNER, positionitemspinner);
+
+        super.onSaveInstanceState(outState);
     }
 
     @Override

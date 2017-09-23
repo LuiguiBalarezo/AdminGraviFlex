@@ -1,7 +1,10 @@
 package com.scriptgo.www.admingraviflex.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -89,6 +92,11 @@ public class RecyclerEgresosAdapter extends RecyclerView.Adapter<RecyclerEgresos
             mes_pago = calendar.get(Calendar.MONTH);
             anio_pago = calendar.get(Calendar.YEAR);
 
+
+            byte[] decodeString = Base64.decode(egreso.image, Base64.DEFAULT);
+            Bitmap decoded = BitmapFactory.decodeByteArray(decodeString , 0, decodeString.length);
+            holder.img_doc.setImageBitmap(decoded);
+
             holder.txt_fecha_pago.setText("Fecha de Pago: " + String.format("%02d", dia_pago) + "-" + String.format("%02d", mes_pago) + "-" + anio_pago);
             holder.txt_monto.setText("Monto Pago: S/." +  String.format("%.2f", egreso.amount));
 
@@ -97,8 +105,6 @@ public class RecyclerEgresosAdapter extends RecyclerView.Adapter<RecyclerEgresos
             dia_create = calendar.get(Calendar.DAY_OF_MONTH);
             mes_create =  calendar.get(Calendar.MONTH);
             anio_create =  calendar.get(Calendar.YEAR);
-
-
 
             holder.txt_fecha_creacion.setText("Fecha de Creacion: " + String.format("%02d", dia_create) + "-" + String.format("%02d", mes_create) + "-" + anio_create);
 
