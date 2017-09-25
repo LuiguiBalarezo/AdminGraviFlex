@@ -4,10 +4,10 @@ import android.util.Log;
 
 import com.scriptgo.www.admingraviflex.apiadapter.ApiAdapter;
 import com.scriptgo.www.admingraviflex.interfaces.CallBackProcessDineroApi;
-import com.scriptgo.www.admingraviflex.interfaces.CallBackProcessEgresosApi;
+import com.scriptgo.www.admingraviflex.interfaces.CallBackProcessIngresosApi;
 import com.scriptgo.www.admingraviflex.models.Usuario;
 import com.scriptgo.www.admingraviflex.responses.DineroResponse;
-import com.scriptgo.www.admingraviflex.responses.EgresoResponse;
+import com.scriptgo.www.admingraviflex.responses.IngresoResponse;
 
 import java.util.Date;
 
@@ -19,7 +19,7 @@ import retrofit2.Response;
  * Created by BALAREZO on 04/09/2017.
  */
 
-public class EgresoServiceAPI {
+public class IngresoServiceAPI {
 
     private int iduser = 0;
 
@@ -27,58 +27,57 @@ public class EgresoServiceAPI {
     private String TAG = this.getClass().getSimpleName();
 
     /* SERVICES */
-    private Call<EgresoResponse> s_getallactive = null, s_create = null, s_sync = null, s_getallactive_id_name = null;
+    private Call<IngresoResponse> s_getallactive = null, s_create = null, s_sync = null, s_getallactive_id_name = null;
     private Call<DineroResponse> s_getallmoney = null;
     /* CALLBACK */
-    private CallBackProcessEgresosApi callBackProcessEgresosApi = null;
+    private CallBackProcessIngresosApi callBackProcessIngresosApi = null;
     private CallBackProcessDineroApi callBackProcessDineroApi = null;
     /* MODELS */
     protected Usuario m_usuario = null;
     /* RESPONSE */
-    protected EgresoResponse r_egresos = null;
+    protected IngresoResponse r_ingresos = null;
     protected DineroResponse r_dineros = null;
 
-    public EgresoServiceAPI(int _iduser) {
+    public IngresoServiceAPI(int _iduser) {
         iduser = _iduser;
     }
 
-
-    public void getAllEgresosByObra(int idobra, final CallBackProcessEgresosApi callback) {
-        callBackProcessEgresosApi = callback;
-        s_getallactive = ApiAdapter.getApiService().processGetAllEgresoByObra(iduser, idobra);
-        s_getallactive.enqueue(new Callback<EgresoResponse>() {
+    public void getAllIngresoByObra(int idobra, final CallBackProcessIngresosApi callback) {
+        callBackProcessIngresosApi = callback;
+        s_getallactive = ApiAdapter.getApiService().processGetAllIngresoByObra(iduser, idobra);
+        s_getallactive.enqueue(new Callback<IngresoResponse>() {
             @Override
-            public void onResponse(Call<EgresoResponse> call, Response<EgresoResponse> response) {
+            public void onResponse(Call<IngresoResponse> call, Response<IngresoResponse> response) {
                 if (response.isSuccessful()) {
-                    r_egresos = response.body();
-                    if (r_egresos.error == 1) {
+                    r_ingresos = response.body();
+                    if (r_ingresos.error == 1) {
                         Log.d(TAG, "ERROR + MENSAJE");
                     } else {
-                        callBackProcessEgresosApi.connect(r_egresos.egreso);
+                        callBackProcessIngresosApi.connect(r_ingresos.ingreso);
                     }
                 } else {
                     Log.d(TAG, "ERROR SERVICES OBRASRECYCLER");
                 }
             }
             @Override
-            public void onFailure(Call<EgresoResponse> call, Throwable t) {
-                callBackProcessEgresosApi.disconnect();
+            public void onFailure(Call<IngresoResponse> call, Throwable t) {
+                callBackProcessIngresosApi.disconnect();
             }
         });
     }
 
-    public void create(int idserver, int idlocal, int idobra, Date fecha, int serie, float monto, String image, Date datecreate, final CallBackProcessEgresosApi callback) {
-        callBackProcessEgresosApi = callback;
-        s_create = ApiAdapter.getApiService().processCreateEgreso(idserver, idlocal, idobra,fecha , serie, monto , image, datecreate, iduser);
-        s_create.enqueue(new Callback<EgresoResponse>() {
+    public void create(int idserver, int idlocal, int idobra, Date fecha, int serie, float monto, String image, Date datecreate, final CallBackProcessIngresosApi callback) {
+        callBackProcessIngresosApi = callback;
+        s_create = ApiAdapter.getApiService().processCreateIngreso(idserver, idlocal, idobra,fecha , serie, monto , image, datecreate, iduser);
+        s_create.enqueue(new Callback<IngresoResponse>() {
             @Override
-            public void onResponse(Call<EgresoResponse> call, Response<EgresoResponse> response) {
+            public void onResponse(Call<IngresoResponse> call, Response<IngresoResponse> response) {
                 if (response.isSuccessful()) {
-                    r_egresos = response.body();
-                    if (r_egresos.error == 1) {
+                    r_ingresos = response.body();
+                    if (r_ingresos.error == 1) {
                         Log.d(TAG, "ERROR + MENSAJE");
                     } else {
-                        callBackProcessEgresosApi.connect(r_egresos.egreso);
+                        callBackProcessIngresosApi.connect(r_ingresos.ingreso);
                     }
                 } else {
                     Log.d(TAG, "ERROR SERVICES OBRASRECYCLER");
@@ -86,15 +85,15 @@ public class EgresoServiceAPI {
             }
 
             @Override
-            public void onFailure(Call<EgresoResponse> call, Throwable t) {
-                callBackProcessEgresosApi.disconnect();
+            public void onFailure(Call<IngresoResponse> call, Throwable t) {
+                callBackProcessIngresosApi.disconnect();
             }
         });
     }
 
     public void getAllMoney(int idobra, final CallBackProcessDineroApi callback) {
         callBackProcessDineroApi = callback;
-        s_getallmoney = ApiAdapter.getApiService().processGetAllDineroEgresoByObra(iduser,idobra);
+        s_getallmoney = ApiAdapter.getApiService().processGetAllDineroIngresoByObra(iduser,idobra);
         s_getallmoney.enqueue(new Callback<DineroResponse>() {
             @Override
             public void onResponse(Call<DineroResponse> call, Response<DineroResponse> response) {

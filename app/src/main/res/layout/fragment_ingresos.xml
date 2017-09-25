@@ -1,13 +1,58 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.scriptgo.www.admingraviflex.fragments.IngresosFragment">
 
-    <!-- TODO: Update blank fragment layout -->
+    <com.scriptgo.www.admingraviflex.compound.ProgressCircularText
+        android:id="@+id/pgrs_egresos"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        app:text_load="Cargando..." />
+
     <TextView
+        android:id="@+id/txt_vacio"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/ingresos" />
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:text="Lista de Ingresos Vacio / Sin Egresos"
+        android:visibility="gone" />
 
-</FrameLayout>
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="Obras"
+        android:paddingLeft="8dp"
+        android:textColor="@color/colorPrimary" />
+
+    <android.support.v7.widget.AppCompatSpinner
+        android:id="@+id/spn_obras"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_below="@id/title"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="0dp"
+        android:elevation="6dp" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rcv_egresos"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:scrollbars="vertical"
+        android:clipToPadding="false"
+        android:paddingBottom="100dp"
+        android:layout_height="match_parent"
+        android:layout_below="@id/spn_obras" />
+
+
+</RelativeLayout>

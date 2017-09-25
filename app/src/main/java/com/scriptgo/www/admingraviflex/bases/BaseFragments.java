@@ -1,10 +1,13 @@
 package com.scriptgo.www.admingraviflex.bases;
 
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
 
@@ -35,6 +38,7 @@ public class BaseFragments extends Fragment {
     protected RecyclerView recycler_view;
     /* REALM */
     protected Realm realm = null;
+    protected Menu menu = null;
 
     /* VARS */
     protected String TAG = this.getClass().getSimpleName();
@@ -43,6 +47,8 @@ public class BaseFragments extends Fragment {
     protected boolean listobrasDBempty = false;
     protected boolean listegresosAPIempty = false;
     protected boolean listegresosDBempty = false;
+    protected boolean listingresosAPIempty = false;
+    protected boolean listingresosDBempty = false;
     protected int diainit, mesinit, anioinit, dia, mes, anio;
 
     Calendar calendar = null;
@@ -56,6 +62,8 @@ public class BaseFragments extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+
         realm = Realm.getDefaultInstance();
         iduser = getIdUser();
         calendar = Calendar.getInstance();
@@ -111,19 +119,9 @@ public class BaseFragments extends Fragment {
         return iduser = m_usuario.id;
     }
 
-//    protected Dialog openDialogDatePicker() {
-//        return new DatePickerDialog(getActivity(), onDateSetListener, anio, mes, dia);
-//    }
-//
-//    DatePickerDialog.OnDateSetListener onDateSetListener = new DatePickerDialog.OnDateSetListener() {
-//        @Override
-//        public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-//            dia = dayOfMonth;
-//            mes = month;
-//            anio = year;
-//
-//        }
-//    };
+    protected Dialog openDialogDatePicker(DatePickerDialog.OnDateSetListener onDateSetListener) {
+        return new DatePickerDialog(getActivity(), onDateSetListener, anioinit, mesinit, diainit);
+    }
 
     /* INICIALIZADOR DE VIEWS*/
     protected void initUI() {

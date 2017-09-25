@@ -1,7 +1,9 @@
 package com.scriptgo.www.admingraviflex.apiservices;
 
 import com.scriptgo.www.admingraviflex.constans.ConstansHelps;
+import com.scriptgo.www.admingraviflex.responses.DineroResponse;
 import com.scriptgo.www.admingraviflex.responses.EgresoResponse;
+import com.scriptgo.www.admingraviflex.responses.IngresoResponse;
 import com.scriptgo.www.admingraviflex.responses.LoginResponse;
 import com.scriptgo.www.admingraviflex.responses.ObrasResponse;
 
@@ -29,21 +31,6 @@ public interface ApiServices {
     @Headers(ConstansHelps.ACCESS_TOKEN)
     Call<LoginResponse> processLogin(@Field("edt_usuario") String usuario, @Field("edt_clave") String clave);
 
-    //    @FormUrlEncoded
-//    @POST("logout")
-//    @Headers(ConstantsHelp.ACCESS_TOKEN)
-//    Call<LoginResponse> processLogout(@Field("edt_id") String id);
-//
-//
-//    /*
-//    * USUARIOS
-//    * */
-//    @GET("users")
-//    @Headers(ConstantsHelp.ACCESS_TOKEN)
-//    Call<UsuariosResponse> getAllUsuarios();
-//
-//
-//
     /*
     *  OBRAS
     **/
@@ -90,6 +77,10 @@ public interface ApiServices {
     @Headers(ConstansHelps.ACCESS_TOKEN)
     Call<EgresoResponse> processGetAllEgresoByObra(@Path("edt_iduser") int iduser, @Path("edt_idobra") int idobra);
 
+    @GET("{edt_iduser}/expenditure/work/{edt_idobra}/totalmoney")
+    @Headers(ConstansHelps.ACCESS_TOKEN)
+    Call<DineroResponse> processGetAllDineroEgresoByObra(@Path("edt_iduser") int iduser, @Path("edt_idobra") int idobra);
+
 
     @FormUrlEncoded
     @POST("{edt_iduser}/expenditure/create")
@@ -104,5 +95,29 @@ public interface ApiServices {
                                              @Field("createdAtLocalDB") Date datecreatelocal,
                                              @Path("edt_iduser") Integer iduser);
 
+
+    /*
+  *  INGRESOS
+  **/
+    @GET("{edt_iduser}/entry/work/{edt_idobra}")
+    @Headers(ConstansHelps.ACCESS_TOKEN)
+    Call<IngresoResponse> processGetAllIngresoByObra(@Path("edt_iduser") int iduser, @Path("edt_idobra") int idobra);
+
+    @GET("{edt_iduser}/entry/work/{edt_idobra}/totalmoney")
+    @Headers(ConstansHelps.ACCESS_TOKEN)
+    Call<DineroResponse> processGetAllDineroIngresoByObra(@Path("edt_iduser") int iduser, @Path("edt_idobra") int idobra);
+
+    @FormUrlEncoded
+    @POST("{edt_iduser}/entry/create")
+    @Headers(ConstansHelps.ACCESS_TOKEN)
+    Call<IngresoResponse> processCreateIngreso(@Field("edt_id") Integer id,
+                                             @Field("edt_idlocal") Integer idlocal,
+                                             @Field("edt_idobra") Integer idobra,
+                                             @Field("edt_fecha") Date fecha,
+                                             @Field("edt_numero") int numero,
+                                             @Field("edt_monto") double monto,
+                                             @Field("edt_imagen") String image,
+                                             @Field("createdAtLocalDB") Date datecreatelocal,
+                                             @Path("edt_iduser") Integer iduser);
 
 }

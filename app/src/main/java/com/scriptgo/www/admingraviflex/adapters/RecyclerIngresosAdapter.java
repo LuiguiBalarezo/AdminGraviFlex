@@ -12,8 +12,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.scriptgo.www.admingraviflex.R;
-import com.scriptgo.www.admingraviflex.interfaces.EgresosClickRecyclerView;
-import com.scriptgo.www.admingraviflex.models.Egreso;
+import com.scriptgo.www.admingraviflex.interfaces.IngresosClickRecyclerView;
+import com.scriptgo.www.admingraviflex.models.Ingreso;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -21,16 +21,17 @@ import java.util.Date;
 
 import io.realm.RealmList;
 
+
 /**
  * Created by BALAREZO on 11/08/2017.
  */
 
-public class RecyclerEgresosAdapter extends RecyclerView.Adapter<RecyclerEgresosAdapter.ObraViewHolder> {
+public class RecyclerIngresosAdapter extends RecyclerView.Adapter<RecyclerIngresosAdapter.IngresoViewHolder> {
 
-    private RealmList<Egreso> egresos;
+    private RealmList<Ingreso> ingresos;
     private Context context;
 
-    EgresosClickRecyclerView listener;
+    IngresosClickRecyclerView listener;
 
     String fechapago = null;
     SimpleDateFormat simpleDateFormat = null;
@@ -40,18 +41,18 @@ public class RecyclerEgresosAdapter extends RecyclerView.Adapter<RecyclerEgresos
     int dia_pago = 0, mes_pago = 0, anio_pago = 0;
     int dia_create = 0, mes_create = 0, anio_create = 0;
 
-    public RecyclerEgresosAdapter(Context ctx, RealmList<Egreso> egresos, EgresosClickRecyclerView listener) {
+    public RecyclerIngresosAdapter(Context ctx, RealmList<Ingreso> ingresos, IngresosClickRecyclerView listener) {
         this.context = ctx;
-        this.egresos = egresos;
+        this.ingresos = ingresos;
         this.listener = listener;
     }
 
     @Override
-    public ObraViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public IngresoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.egresos_item_recycler, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.ingresos_item_recycler, parent, false);
 
-        final ObraViewHolder obraViewHolder = new ObraViewHolder(v);
+        final IngresoViewHolder ingresoViewHolder = new IngresoViewHolder(v);
 
 //        v.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -75,14 +76,14 @@ public class RecyclerEgresosAdapter extends RecyclerView.Adapter<RecyclerEgresos
 //            }
 //        });
 
-        return obraViewHolder;
+        return ingresoViewHolder;
 
     }
 
 
     @Override
-    public void onBindViewHolder(ObraViewHolder holder, int position) {
-        Egreso egreso = egresos.get(position);
+    public void onBindViewHolder(IngresoViewHolder holder, int position) {
+        Ingreso egreso = ingresos.get(position);
 
         try {
 
@@ -92,18 +93,19 @@ public class RecyclerEgresosAdapter extends RecyclerView.Adapter<RecyclerEgresos
             mes_pago = calendar.get(Calendar.MONTH)+1;
             anio_pago = calendar.get(Calendar.YEAR);
 
+
             byte[] decodeString = Base64.decode(egreso.image, Base64.DEFAULT);
-            Bitmap decoded = BitmapFactory.decodeByteArray(decodeString, 0, decodeString.length);
+            Bitmap decoded = BitmapFactory.decodeByteArray(decodeString , 0, decodeString.length);
             holder.img_doc.setImageBitmap(decoded);
 
             holder.txt_fecha_pago.setText("Fecha de Pago: " + String.format("%02d", dia_pago) + "-" + String.format("%02d", mes_pago) + "-" + anio_pago);
-            holder.txt_monto.setText("Monto Pago: S/" + String.format("%.2f", egreso.amount));
+            holder.txt_monto.setText("Monto Pago: S/" +  String.format("%.2f", egreso.amount));
 
             calendar.setTime(egreso.createdAt);
 
             dia_create = calendar.get(Calendar.DAY_OF_MONTH);
-            mes_create = calendar.get(Calendar.MONTH);
-            anio_create = calendar.get(Calendar.YEAR);
+            mes_create =  calendar.get(Calendar.MONTH);
+            anio_create =  calendar.get(Calendar.YEAR);
 
             holder.txt_fecha_creacion.setText("Fecha de Creacion: " + String.format("%02d", dia_create) + "-" + String.format("%02d", mes_create) + "-" + anio_create);
 
@@ -120,10 +122,10 @@ public class RecyclerEgresosAdapter extends RecyclerView.Adapter<RecyclerEgresos
 
     @Override
     public int getItemCount() {
-        return egresos.size();
+        return ingresos.size();
     }
 
-    public class ObraViewHolder extends RecyclerView.ViewHolder {
+    public class IngresoViewHolder extends RecyclerView.ViewHolder {
 
         private TextView txt_fecha_pago;
         private TextView txt_monto;
@@ -131,7 +133,7 @@ public class RecyclerEgresosAdapter extends RecyclerView.Adapter<RecyclerEgresos
         private TextView txt_fecha_creacion;
         private ImageView img_doc;
 
-        public ObraViewHolder(View itemView) {
+        public IngresoViewHolder(View itemView) {
             super(itemView);
             txt_fecha_pago = (TextView) itemView.findViewById(R.id.txt_fecha_pago);
             txt_monto = (TextView) itemView.findViewById(R.id.txt_monto);

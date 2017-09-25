@@ -17,7 +17,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -34,7 +33,6 @@ import com.scriptgo.www.admingraviflex.interfaces.ObrasFragmentToActivity;
 
 public class MainActivity extends AppCompatActivity
         implements
-        IngresosFragment.OnFragmentInteractionListener,
         ObrasFragmentToActivity,
         ValoracionesFragment.OnFragmentInteractionListener,
         NavigationView.OnNavigationItemSelectedListener {
@@ -62,9 +60,13 @@ public class MainActivity extends AppCompatActivity
 
     //FRAGMENTS
     EgresosFragment egresosFragment = null;
+    IngresosFragment ingresosFragment = null;
 
     /* VARS */
     Bitmap imageBitmap = null;
+    String TYPE_RESULT = "TYPERESULT";
+    String typeactivityresult = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,16 +91,15 @@ public class MainActivity extends AppCompatActivity
 
         imgbtn_opencamera.setOnClickListener(onClickListener);
         imgbtn_openpickerphoto.setOnClickListener(onClickListener);
+        bsb = BottomSheetBehavior.from(bottomSheet);
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        if (savedInstanceState == null) {
-            // toolbar.setNavigationIcon(null);
-            //drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        if(savedInstanceState != null){
+            typeactivityresult = savedInstanceState.getString(TYPE_RESULT);
+        }else{
             changeFragment(R.id.nav_obras);
-        } else {
-            //drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN);
         }
     }
 
@@ -112,27 +113,27 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.main, menu);
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        int id = item.getItemId();
+//
+//        //noinspection SimplifiableIfStatement
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -150,10 +151,7 @@ public class MainActivity extends AppCompatActivity
 
         Fragment fragment = null;
         Class fragmentClass = null;
-
-
-
-
+        bsb.setState(BottomSheetBehavior.STATE_HIDDEN);
         switch (iditemnav) {
             case R.id.nav_obras:
 
@@ -177,10 +175,8 @@ public class MainActivity extends AppCompatActivity
                 fab.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
-                        bsb = BottomSheetBehavior.from(bottomSheet);
+                        typeactivityresult  = "Egresos";
                         bsb.setState(BottomSheetBehavior.STATE_EXPANDED);
-
                     }
                 });
                 transactionFragment(fragment, fragmentClass);
@@ -192,7 +188,9 @@ public class MainActivity extends AppCompatActivity
                 fab.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
+                        typeactivityresult  = "Ingresos";
+                        bsb = BottomSheetBehavior.from(bottomSheet);
+                        bsb.setState(BottomSheetBehavior.STATE_EXPANDED);
                     }
                 });
                 transactionFragment(fragment, fragmentClass);
@@ -241,9 +239,19 @@ public class MainActivity extends AppCompatActivity
                 imageBitmap = (Bitmap) extras.get("data");
 
 
-            egresosFragment = (EgresosFragment) getSupportFragmentManager().findFragmentByTag(EgresosFragment.class.getSimpleName());
-            egresosFragment.initOpenDialogAdd();
-            egresosFragment.setImageViewInDialog(imageBitmap);
+            switch (typeactivityresult){
+                case "Egresos":
+                    egresosFragment = (EgresosFragment) getSupportFragmentManager().findFragmentByTag(EgresosFragment.class.getSimpleName());
+                    egresosFragment.initOpenDialogAdd();
+                    egresosFragment.setImageViewInDialog(imageBitmap);
+                    break;
+                case "Ingresos":
+                    ingresosFragment = (IngresosFragment) getSupportFragmentManager().findFragmentByTag(IngresosFragment.class.getSimpleName());
+                    ingresosFragment.initOpenDialogAdd();
+                    ingresosFragment.setImageViewInDialog(imageBitmap);
+                    break;
+            }
+
 
             Toast.makeText(this, "" + imageBitmap, Toast.LENGTH_SHORT).show();
 
@@ -251,7 +259,11 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString(TYPE_RESULT, typeactivityresult);
+        super.onSaveInstanceState(outState);
+    }
 
     // INTERFACES
     @Override
@@ -299,8 +311,9 @@ public class MainActivity extends AppCompatActivity
         } catch (Exception e) {
             e.printStackTrace();
         }
+        String tag = fragment.getClass().getSimpleName();
         fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.container_framelayout, fragment, fragment.getClass().getSimpleName()).commit();
+        fragmentManager.beginTransaction().replace(R.id.container_framelayout, fragment,tag ).commit();
     }
 
     private void startMainActivity(Intent intent, Class ClassActivity) {

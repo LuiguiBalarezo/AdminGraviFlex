@@ -20,49 +20,39 @@
         android:layout_height="match_parent"
         android:layout_centerInParent="true"
         android:gravity="center"
-        android:text="Lista de Obras Vacio / Sin Egresos"
+        android:text="Lista de Egresos Vacio / Sin Egresos"
         android:visibility="gone" />
 
-    <android.support.v7.widget.CardView
-        android:id="@+id/cv_listaobras"
+    <TextView
+        android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="0dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="15dp">
+        android:layout_margin="10dp"
+        android:text="Obras"
+        android:paddingLeft="8dp"
+        android:textColor="@color/colorPrimary" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/txt_obra"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingLeft="8dp"
-                android:text="Obra"
-                android:textColor="@color/blue_400"
-                android:textSize="12sp" />
-
-            <android.support.v7.widget.AppCompatSpinner
-                android:id="@+id/spn_obras"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginTop="10dp"
-                android:elevation="6dp" />
-
-        </LinearLayout>
-
-    </android.support.v7.widget.CardView>
+    <android.support.v7.widget.AppCompatSpinner
+        android:id="@+id/spn_obras"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_below="@id/title"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="0dp"
+        android:elevation="6dp" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rcv_egresos"
+        android:layout_marginLeft="10dp"
+        android:scrollbars="vertical"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:clipToPadding="false"
+        android:paddingBottom="100dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/cv_listaobras" />
+        android:layout_below="@id/spn_obras" />
 
 </RelativeLayout>
