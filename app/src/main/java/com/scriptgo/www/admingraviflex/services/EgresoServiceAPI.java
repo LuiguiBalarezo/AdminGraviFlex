@@ -3,9 +3,9 @@ package com.scriptgo.www.admingraviflex.services;
 import android.util.Log;
 
 import com.scriptgo.www.admingraviflex.apiadapter.ApiAdapter;
+import com.scriptgo.www.admingraviflex.bases.BaseServiceAPI;
 import com.scriptgo.www.admingraviflex.interfaces.CallBackProcessDineroApi;
 import com.scriptgo.www.admingraviflex.interfaces.CallBackProcessEgresosApi;
-import com.scriptgo.www.admingraviflex.models.Usuario;
 import com.scriptgo.www.admingraviflex.responses.DineroResponse;
 import com.scriptgo.www.admingraviflex.responses.EgresoResponse;
 
@@ -19,7 +19,7 @@ import retrofit2.Response;
  * Created by BALAREZO on 04/09/2017.
  */
 
-public class EgresoServiceAPI {
+public class EgresoServiceAPI extends BaseServiceAPI {
 
     private int iduser = 0;
 
@@ -27,16 +27,6 @@ public class EgresoServiceAPI {
     private String TAG = this.getClass().getSimpleName();
 
     /* SERVICES */
-    private Call<EgresoResponse> s_getallactive = null, s_create = null, s_sync = null, s_getallactive_id_name = null;
-    private Call<DineroResponse> s_getallmoney = null;
-    /* CALLBACK */
-    private CallBackProcessEgresosApi callBackProcessEgresosApi = null;
-    private CallBackProcessDineroApi callBackProcessDineroApi = null;
-    /* MODELS */
-    protected Usuario m_usuario = null;
-    /* RESPONSE */
-    protected EgresoResponse r_egresos = null;
-    protected DineroResponse r_dineros = null;
 
     public EgresoServiceAPI(int _iduser) {
         iduser = _iduser;
@@ -45,8 +35,8 @@ public class EgresoServiceAPI {
 
     public void getAllEgresosByObra(int idobra, final CallBackProcessEgresosApi callback) {
         callBackProcessEgresosApi = callback;
-        s_getallactive = ApiAdapter.getApiService().processGetAllEgresoByObra(iduser, idobra);
-        s_getallactive.enqueue(new Callback<EgresoResponse>() {
+        s_getall_egreso_active_id_name = ApiAdapter.getApiService().processGetAllEgresoByObra(iduser, idobra);
+        s_getall_egreso_active_id_name.enqueue(new Callback<EgresoResponse>() {
             @Override
             public void onResponse(Call<EgresoResponse> call, Response<EgresoResponse> response) {
                 if (response.isSuccessful()) {
@@ -69,8 +59,8 @@ public class EgresoServiceAPI {
 
     public void create(int idserver, int idlocal, int idobra, Date fecha, int serie, float monto, String image, Date datecreate, final CallBackProcessEgresosApi callback) {
         callBackProcessEgresosApi = callback;
-        s_create = ApiAdapter.getApiService().processCreateEgreso(idserver, idlocal, idobra,fecha , serie, monto , image, datecreate, iduser);
-        s_create.enqueue(new Callback<EgresoResponse>() {
+        s_create_egreso = ApiAdapter.getApiService().processCreateEgreso(idserver, idlocal, idobra,fecha , serie, monto , image, datecreate, iduser);
+        s_create_egreso.enqueue(new Callback<EgresoResponse>() {
             @Override
             public void onResponse(Call<EgresoResponse> call, Response<EgresoResponse> response) {
                 if (response.isSuccessful()) {
@@ -94,8 +84,8 @@ public class EgresoServiceAPI {
 
     public void getAllMoney(int idobra, final CallBackProcessDineroApi callback) {
         callBackProcessDineroApi = callback;
-        s_getallmoney = ApiAdapter.getApiService().processGetAllDineroEgresoByObra(iduser,idobra);
-        s_getallmoney.enqueue(new Callback<DineroResponse>() {
+        s_getall_dinero = ApiAdapter.getApiService().processGetAllDineroEgresoByObra(iduser,idobra);
+        s_getall_dinero.enqueue(new Callback<DineroResponse>() {
             @Override
             public void onResponse(Call<DineroResponse> call, Response<DineroResponse> response) {
                 if (response.isSuccessful()) {
@@ -117,11 +107,12 @@ public class EgresoServiceAPI {
         });
     }
 
+    @Override
     public void cancelServices() {
-        if (s_getallactive != null) {
-            s_getallactive.cancel();
-        }
+        super.cancelServices();
+        Log.d(TAG, "all services cancel");
+        if (s_getall_egreso_active_id_name != null) { s_getall_egreso_active_id_name.cancel(); }
+        if (s_create_egreso != null) { s_create_egreso.cancel(); }
+        if (s_getall_dinero != null) { s_getall_dinero.cancel(); }
     }
-
-
 }

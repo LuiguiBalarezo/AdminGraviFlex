@@ -433,7 +433,9 @@ public class IngresosFragment extends BaseFragments {
     };
 
 
-    void positiveadd(MaterialDialog dialog) {
+    @Override
+    protected void positiveadd(MaterialDialog dialog) {
+        super.positiveadd(dialog);
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
         try {
             fecha_emision = format.parse(edt_fecha_emision.getText().toString());
@@ -452,11 +454,11 @@ public class IngresosFragment extends BaseFragments {
         dismissDialogAdd();
     }
 
-    void negativeadd() {
+    @Override
+    protected void negativeadd() {
+        super.negativeadd();
         dismissDialogAdd();
     }
-
-
 
     /* METHOD */
     private void checkIngresos() {

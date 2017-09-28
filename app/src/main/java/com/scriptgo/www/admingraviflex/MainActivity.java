@@ -27,6 +27,7 @@ import android.widget.Toast;
 import com.scriptgo.www.admingraviflex.fragments.EgresosFragment;
 import com.scriptgo.www.admingraviflex.fragments.IngresosFragment;
 import com.scriptgo.www.admingraviflex.fragments.ObrasFragment;
+import com.scriptgo.www.admingraviflex.fragments.TrabajadoresFragment;
 import com.scriptgo.www.admingraviflex.fragments.ValoracionesFragment;
 import com.scriptgo.www.admingraviflex.interfaces.ObrasFragmentToActivity;
 
@@ -59,8 +60,10 @@ public class MainActivity extends AppCompatActivity
     Intent intentpreferences;
 
     //FRAGMENTS
+    ObrasFragment obrasFragment = null;
     EgresosFragment egresosFragment = null;
     IngresosFragment ingresosFragment = null;
+    TrabajadoresFragment trabajadoresFragment = null;
 
     /* VARS */
     Bitmap imageBitmap = null;
@@ -113,28 +116,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.main, menu);
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Handle action bar item clicks here. The action bar will
-//        // automatically handle clicks on the Home/Up button, so long
-//        // as you specify a parent activity in AndroidManifest.xml.
-//        int id = item.getItemId();
-//
-//        //noinspection SimplifiableIfStatement
-//        if (id == R.id.action_settings) {
-//            return true;
-//        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
-
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -162,7 +143,7 @@ public class MainActivity extends AppCompatActivity
                 fab.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ObrasFragment obrasFragment = (ObrasFragment) getSupportFragmentManager().findFragmentByTag(ObrasFragment.class.getSimpleName());
+                        obrasFragment = (ObrasFragment) getSupportFragmentManager().findFragmentByTag(ObrasFragment.class.getSimpleName());
                         obrasFragment.initOpenDialogAdd();
                     }
                 });
@@ -191,6 +172,20 @@ public class MainActivity extends AppCompatActivity
                         typeactivityresult  = "Ingresos";
                         bsb = BottomSheetBehavior.from(bottomSheet);
                         bsb.setState(BottomSheetBehavior.STATE_EXPANDED);
+                    }
+                });
+                transactionFragment(fragment, fragmentClass);
+                break;
+            case R.id.nav_trabajadores:
+                dismissSnackBar();
+                fragmentClass = TrabajadoresFragment.class;
+                toolbar.setTitle("Trabajador");
+                fab.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        typeactivityresult  = "Trabajador";
+                        trabajadoresFragment = (TrabajadoresFragment) getSupportFragmentManager().findFragmentByTag(TrabajadoresFragment.class.getSimpleName());
+                        trabajadoresFragment.initOpenDialogAdd();
                     }
                 });
                 transactionFragment(fragment, fragmentClass);
@@ -237,7 +232,6 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Bundle extras = data.getExtras();
                 imageBitmap = (Bitmap) extras.get("data");
-
 
             switch (typeactivityresult){
                 case "Egresos":

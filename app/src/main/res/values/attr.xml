@@ -4,4 +4,42 @@
     <declare-styleable name="AttrProgressCircularText">
         <attr name="text_load" format="string"/>
     </declare-styleable>
+
+    <attr name="hit" format="string" />
+    <attr name="readonly" format="boolean" />
+    <attr name="iconfirst" format="reference" />
+    <attr name="iconsecond" format="reference" />
+    <attr name="iconthird" format="reference" />
+    <attr name="inputype" format="string"/>
+
+    <declare-styleable name="attrtitlecardview">
+        <attr name="title" format="string" />
+    </declare-styleable>
+
+    <declare-styleable name="attredittextbutton">
+        <attr name="hit" />
+        <attr name="readonly" />
+        <attr name="iconfirst"  />
+    </declare-styleable>
+
+    <declare-styleable name="attredittextwotbutton">
+        <attr name="hit" />
+        <attr name="readonly" />
+        <attr name="iconfirst" />
+        <attr name="iconsecond"  />
+    </declare-styleable>
+
+    <declare-styleable name="attredittexthreetbutton">
+        <attr name="hit" />
+        <attr name="readonly" />
+        <attr name="iconfirst" />
+        <attr name="iconsecond"  />
+        <attr name="iconthird"  />
+    </declare-styleable>
+
+    <declare-styleable name="attredittextsingle">
+        <attr name="readonly" />
+        <attr name="hit" />
+        <attr name="inputype"/>
+    </declare-styleable>
 </resources>

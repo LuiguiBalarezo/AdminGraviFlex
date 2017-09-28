@@ -52,6 +52,7 @@
                 android:id="@+id/edt_serie"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:inputType="number"
                 android:hint="Serie" />
         </android.support.design.widget.TextInputLayout>
 
@@ -68,6 +69,7 @@
             android:id="@+id/edt_monto"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
             android:hint="Monto" />
 
     </android.support.design.widget.TextInputLayout>

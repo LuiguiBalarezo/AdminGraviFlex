@@ -19,7 +19,7 @@
         android:layout_height="match_parent"
         android:layout_centerInParent="true"
         android:gravity="center"
-        android:text="Lista de Ingresos Vacio / Sin Egresos"
+        android:text="Lista Vacia"
         android:visibility="gone" />
 
     <TextView

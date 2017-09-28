@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
@@ -11,16 +12,30 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.scriptgo.www.admingraviflex.adapters.RecyclerEgresosAdapter;
+import com.scriptgo.www.admingraviflex.adapters.RecyclerObraAdapter;
+import com.scriptgo.www.admingraviflex.adapters.SpinnerObraAdapter;
 import com.scriptgo.www.admingraviflex.compound.ProgressCircularText;
 import com.scriptgo.www.admingraviflex.interfaces.ObrasFragmentToActivity;
+import com.scriptgo.www.admingraviflex.models.Egreso;
+import com.scriptgo.www.admingraviflex.models.Ingreso;
+import com.scriptgo.www.admingraviflex.models.Obra;
+import com.scriptgo.www.admingraviflex.models.Trabajador;
 import com.scriptgo.www.admingraviflex.models.Usuario;
+import com.scriptgo.www.admingraviflex.services.EgresoServiceAPI;
+import com.scriptgo.www.admingraviflex.services.ObraServiceAPI;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 import io.realm.Realm;
+import io.realm.RealmAsyncTask;
+import io.realm.RealmChangeListener;
+import io.realm.RealmList;
+import io.realm.RealmResults;
 
 /**
  * Created by BALAREZO on 03/09/2017.
@@ -51,29 +66,45 @@ public class BaseFragments extends Fragment {
     protected boolean listingresosDBempty = false;
     protected int diainit, mesinit, anioinit, dia, mes, anio;
 
+    /* REALM */
+    //obra
+    protected RealmAsyncTask realm_AsyncTask = null;
+    protected RealmChangeListener realm_ChangeListenerObras = null;
+    protected RealmList<Obra> realm_obra_List = null;
+    protected RealmResults<Obra> realm_result_obra = null;
+    //egresos
+    protected RealmResults<Egreso> realm_result_egreso = null;
+    protected RealmList<Egreso> realm_egreso_List = null;
+    //ingresos
+    //trabajadores
+
+    /* ADAPTERS */
+    protected RecyclerObraAdapter recyclerObraAdapter = null;
+    protected SpinnerObraAdapter spinnerObraAdapter = null;
+    protected RecyclerEgresosAdapter recyclerEgresosAdapter = null;
+
     Calendar calendar = null;
     /* MODELS */
     protected Usuario m_usuario = null;
 
+    /* SERVICES */
+    protected ObraServiceAPI obraServiceAPI = null;
+    protected EgresoServiceAPI egresoServiceAPI = null;
+
     /* CALLBACKS */
     private ObrasFragmentToActivity activityactions;
-
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-
         realm = Realm.getDefaultInstance();
         iduser = getIdUser();
         calendar = Calendar.getInstance();
-
         diainit = calendar.get(Calendar.DAY_OF_MONTH);
         mesinit = calendar.get(Calendar.MONTH);
         anioinit = calendar.get(Calendar.YEAR);
-
     }
-
 
     @Override
     public void onAttach(Context context) {
@@ -98,11 +129,13 @@ public class BaseFragments extends Fragment {
         if (activityactions != null) {
             activityactions.dismissSnackBar();
         }
+
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+
     }
 
     @Override
@@ -119,18 +152,39 @@ public class BaseFragments extends Fragment {
         return iduser = m_usuario.id;
     }
 
+    /* GETIDMAX*/
+    protected int getMaxIdObra() {
+        Number currentIdNum = realm.where(Obra.class).max("idlocal");
+        return (currentIdNum == null) ? 1 : currentIdNum.intValue() + 1;
+    }
+
+    protected int getMaxIdEgresos() {
+        Number currentIdNum = realm.where(Egreso.class).max("idlocal");
+        return (currentIdNum == null) ? 1 : currentIdNum.intValue() + 1;
+    }
+
+    protected int getMaxIdIngresos() {
+        Number currentIdNum = realm.where(Ingreso.class).max("idlocal");
+        return (currentIdNum == null) ? 1 : currentIdNum.intValue() + 1;
+    }
+
+    protected int getMaxIdTrabajadores() {
+        Number currentIdNum = realm.where(Trabajador.class).max("idlocal");
+        return (currentIdNum == null) ? 1 : currentIdNum.intValue() + 1;
+    }
+    /*-------------*/
+
+
     protected Dialog openDialogDatePicker(DatePickerDialog.OnDateSetListener onDateSetListener) {
         return new DatePickerDialog(getActivity(), onDateSetListener, anioinit, mesinit, diainit);
     }
 
     /* INICIALIZADOR DE VIEWS*/
     protected void initUI() {
-
     }
 
     /* INICIALIZADOR DE SERVICESAPI*/
     protected void initServices() {
-
     }
 
     /* DIALOG */
@@ -157,8 +211,26 @@ public class BaseFragments extends Fragment {
         }
     }
 
-    public void openDialogEdit() {
+    protected MaterialDialog.SingleButtonCallback singleButtonCallback = new MaterialDialog.SingleButtonCallback() {
+        @Override
+        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+            switch (which.name()) {
+                case "POSITIVE":
+                    positiveadd(dialog);
+                    break;
+                case "NEGATIVE":
+                    negativeadd();
+                    break;
+            }
+        }
+    };
 
+
+    protected void positiveadd(MaterialDialog dialog) {
+    }
+
+    protected void negativeadd() {
+        dismissDialogAdd();
     }
 
     public void openDialogIndeterminate(String textcontent) {
@@ -182,7 +254,6 @@ public class BaseFragments extends Fragment {
     }
 
     protected void showSnackbar(String msg, String type) {
-
     }
 
     protected void visibleViewContent(String viewcontent) {
